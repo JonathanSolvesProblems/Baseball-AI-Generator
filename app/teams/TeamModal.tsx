@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import styles from "../players/page.module.css"; // TODO: Refactor
 import { getFollowedTeams, unfollowTeam, followTeam } from "@/firebase";
 import AuthModal from "../auth/AuthModal";
 import { getTeamLogo } from "../utils/apiPaths";

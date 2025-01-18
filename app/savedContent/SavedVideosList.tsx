@@ -1,10 +1,6 @@
 "use client";
-import {
-  getLoggedInUserDetails,
-  getSavedVideos,
-  updateVideo,
-} from "@/firebase";
-import React, { useEffect, useState } from "react";
+import { getLoggedInUserDetails, updateVideo } from "@/firebase";
+import React, { useState } from "react";
 import { useUser } from "../context/UserContext";
 import { convertTimestampToDate } from "../utils/helper";
 import { analyzeVideoWithAudio } from "../utils/geminiCalls";

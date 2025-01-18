@@ -1,9 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import styles from "./page.module.css";
 import { followPlayer, unfollowPlayer, getFollowedPlayers } from "@/firebase";
 import { PlayerDetails } from "../utils/schemas";
-import { useRouter } from "next/router";
 import AuthModal from "../auth/AuthModal";
 import { getPlayerHeadshot } from "../utils/apiPaths";
 

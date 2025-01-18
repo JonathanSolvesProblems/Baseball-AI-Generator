@@ -26,14 +26,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   autoplay = false,
   loop = false,
 }) => {
-  const {
-    userId,
-    followedPlayers,
-    playerDetails,
-    loading,
-    savedVideos,
-    userDetails,
-  } = useUser();
+  const { userId, userDetails } = useUser();
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [videoSummary, setVideoSummary] = useState<any>();
 

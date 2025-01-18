@@ -1,15 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import {
-  calculateSimilarity,
-  combinePlayerData,
-  extractPlayerName,
-  findTopSimilarPlayers,
-  getHomeRunOfFollowedPlayer,
-  loadCSV,
-} from "@/app/utils/helper";
-import { PlayerStats } from "@/app/utils/schemas";
+import { getHomeRunOfFollowedPlayer, loadCSV } from "@/app/utils/helper";
 import VideoPlayer from "./VideoPlayer";
 import { fetchFollowedPlayers } from "../utils/apiPaths";
 

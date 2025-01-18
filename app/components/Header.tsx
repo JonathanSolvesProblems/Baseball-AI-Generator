@@ -1,21 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  auth,
-  deleteUserAccount,
-  getLoggedInUserDetails,
-  updateUserDetails,
-} from "@/firebase";
 import AuthModal from "../auth/AuthModal";
-import {
-  getGameFeed,
-  getGamesBySeason,
-  getIterativeFanContent,
-  getLatestGameId,
-  getSingleGamePlay,
-} from "../utils/apiPaths";
 import { useUser } from "../context/UserContext";
 import Profile from "./Profile";
 // TODO: If user already logged in, requires another refresh

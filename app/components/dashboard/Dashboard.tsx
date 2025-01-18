@@ -1,6 +1,5 @@
-import React from 'react'
-import FollowedPlayersDashboard from './FollowedPlayersDashboard'
-import FollowedPlayersDashboardVisualize from './FollowedPlayersDashboardVisualize'
+import React from "react";
+import FollowedPlayersDashboardVisualize from "./FollowedPlayersDashboardVisualize";
 
 /*
 Tailored Content: Use the list of followed players to generate tailored content for users. 
@@ -37,13 +36,13 @@ Once a user follows a player, you can set up a system that sends out notificatio
 Notifications can be done through Firebase Cloud Messaging (FCM) or a custom solution where you generate a digest of followed player highlights, stats, and news.
 */
 const Dashboard = () => {
-    return (
-        <div>
-            <h1>Dashboard</h1>
-            {/* <FollowedPlayersDashboard /> */}
-            <FollowedPlayersDashboardVisualize />
-        </div>
-    )
-}
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      {/* <FollowedPlayersDashboard /> */}
+      <FollowedPlayersDashboardVisualize />
+    </div>
+  );
+};
 
-export default Dashboard
+export default Dashboard;

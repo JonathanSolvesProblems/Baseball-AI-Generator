@@ -2,13 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
-  calculateSimilarity,
   combinePlayerData,
-  extractPlayerName,
   findTopSimilarPlayers,
   loadCSV,
 } from "@/app/utils/helper";
-import { PlayerStats } from "@/app/utils/schemas";
 import { fetchFollowedPlayers } from "@/app/utils/apiPaths";
 
 // Could have a cool player movement screenscreen for recommended players
@@ -72,8 +69,14 @@ const RecommendPlayers = ({
         .join("\n");
 
       console.log(similarPlayersList);
+    };
 
-      return;
+    console.log(recommendSimilarPlayer);
+  }, []);
+
+  return <></>;
+
+  /*
 
       const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
@@ -123,19 +126,18 @@ const RecommendPlayers = ({
       </>
     );
 
-  /*
     $"To find similar baseball players to Andy Pages, we need more data than just his profile. The provided data only gives us his physical characteristics, position, and handedness. To find truly similar players, we'd need to consider his:\n\n* **Offensive Statistics:** Batting average, on-base percentage (OBP), slugging percentage (SLG), OPS, home run totals, stolen bases, etc. These are crucial for comparing offensive production.\n* **Defensive Statistics:** Fielding percentage, assists, errors, range factor (for outfielders). This helps assess defensive ability.\n* **Playing Style:** Is he a power hitter, a speedster, a contact hitter, a high-average hitter? This qualitative information is important for comparison.\n* **Minor League Performance:** A player's minor league stats often predict their major league performance.\n\nWithout access to this statistical data, I cannot provide a list of similar players. To get this information, you would need to access a comprehensive baseball statistics database such as Baseball-Reference, Fangraphs, or MLB.com's stats section. Even then, finding \"similar\" players is subjective and depends on the weighting you give to different statistics. Different algorithms and methodologies would yield different results.\n"
-    */
+  
 
   return (
     <>{recommendedPlayers && <p>{JSON.stringify(recommendedPlayers)}</p>}</>
   );
 };
 
-export default RecommendPlayers;
-
-/*
 Data Normalization: If you're comparing various statistical features (ExitVelocity, LaunchAngle, etc.), consider normalizing the data before passing it to the AI model (e.g., scaling values to a range from 0 to 1). This helps avoid skewing results when comparing different magnitudes.
 Incorporating More Stats: In the future, you can enhance the recommendation system by including additional stats like batting average, home runs, and other advanced metrics that could improve the quality of the similarity results.
 Iterative Testing: Experiment with different formats and types of prompts to understand which combinations of attributes work best for the Gemini model.
-*/
+  */
+};
+
+export default RecommendPlayers;
