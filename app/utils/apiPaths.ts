@@ -473,7 +473,7 @@ const getTeamLogo = (teamId: string) => {
 */
 const getMLBLeagues = async () => {
 
-    let queryUrl = 'https://statsapi.mlb.com/api/v1/league?sportId=1';
+    const queryUrl = 'https://statsapi.mlb.com/api/v1/league?sportId=1';
 
     try {
         const res = await fetch(queryUrl);
@@ -575,7 +575,7 @@ const getMLBSeasons = async (setGameTypesData: boolean) => {
 
 const getMLBTeams = async () => {
 
-    let queryUrl = 'https://statsapi.mlb.com/api/v1/teams?sportId=1';
+    const queryUrl = 'https://statsapi.mlb.com/api/v1/teams?sportId=1';
 
     try {
         const res = await fetch(queryUrl);
@@ -629,7 +629,7 @@ const getMLBTeams = async () => {
         },
 */
 const getMLBTeamRoster = async (teamId: string, season: string = '2025') => {
-    let queryUrl = `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?season=${season}`;
+    const queryUrl = `https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?season=${season}`;
 
     try {
         const res = await fetch(queryUrl);

@@ -74,7 +74,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setFollowedPlayers(players);
 
       const updatedPlayers: PlayerDetails[] = [];
-      for (let playerId of players) {
+      for (const playerId of players) {
         const player = await fetchFollowedPlayers(playerId);
 
         if (player) {

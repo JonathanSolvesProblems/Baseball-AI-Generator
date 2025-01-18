@@ -31,7 +31,7 @@ const AuthModal = ({
       // Handle successful sign-in (e.g., close the modal or update the UI)
       setIsModalOpen(false);
     } catch (err) {
-      setError("Google sign-in failed. Please try again later."); // Handle any errors that occur during the sign-in process
+      setError("Google sign-in failed. Please try again later: " + err); // Handle any errors that occur during the sign-in process
     } finally {
       setLoading(false); // Reset loading state
     }

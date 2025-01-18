@@ -53,7 +53,7 @@ const FollowedPlayersDashboardVisualize = () => {
       const updatedPlayers: any[] = [];
       setFollowedPlayers(players);
 
-      for (let playerID in players) {
+      for (const playerID in players) {
         try {
           const player = await fetchFollowedPlayers(players[playerID]);
 
