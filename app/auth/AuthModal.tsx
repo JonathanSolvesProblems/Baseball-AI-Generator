@@ -16,8 +16,6 @@ const AuthModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(loading); // TODO: Use
-
   const handleFormChange = (form: "login" | "google" | "signup") => {
     setCurrentForm(form);
   };

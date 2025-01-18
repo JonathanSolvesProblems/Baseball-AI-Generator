@@ -25,7 +25,7 @@ const ArticleGenerator = () => {
     };
 
     const generateArticleText = async () => {
-      if (!followedPlayers.length) return; // Ensure both followedPlayer and csvData are available
+      if (!userId || !followedPlayers.length) return; // Ensure both followedPlayer and csvData are available
 
       const randomPlayer = getRandomFollowedPlayer();
 
@@ -57,7 +57,7 @@ const ArticleGenerator = () => {
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white shadow-xl rounded-lg">
       <h2 className="text-2xl font-semibold text-center mb-6">
-        Your Personalized Article
+        {articleTitle || "loading title..."}
       </h2>
       {article ? (
         <div className="prose text-black max-w-none">{article}</div>

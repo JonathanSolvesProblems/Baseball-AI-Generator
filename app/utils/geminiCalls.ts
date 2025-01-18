@@ -56,7 +56,7 @@ const getAnswerFromGemini = async (prompt: string) => {
 const analyzeVideoWithAudio = async (videoUrl: string, videoName: string, language: string = "English") => {
     try {
       const res = await fetch(`/api/getVideoSummary?videoUrl=${encodeURIComponent(videoUrl)}&language=${encodeURIComponent(language)}&videoName=${encodeURIComponent(videoName)}`);
-        console.log(res);
+        //console.log(res);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }

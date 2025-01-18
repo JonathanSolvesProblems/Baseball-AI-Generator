@@ -7,9 +7,9 @@ import axios from 'axios';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { videoUrl, language, videoName } = req.query;
 
-    console.log('videoUrl', videoUrl);
-    console.log('language', language);
-    console.log('videoName', videoName);
+    // console.log('videoUrl', videoUrl);
+    // console.log('language', language);
+    // console.log('videoName', videoName);
 
     if (!videoUrl || !language || !videoName) {
         return res.status(400).json({ error: 'videoUrl is required' });
@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const file = bucket.file(fileName);
 
         await file.save(response.data);
-        console.log(`Video uploaded to gs://${bucketName}/${fileName}`);
+      //  console.log(`Video uploaded to gs://${bucketName}/${fileName}`);
         const gsUri = `gs://${bucketName}/${file}`;
 
         const generativeModel = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });

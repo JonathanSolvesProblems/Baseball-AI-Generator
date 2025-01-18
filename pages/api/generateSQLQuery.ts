@@ -28,6 +28,7 @@ export default async function handler(
 
     // Get the dataset reference
     const dataset = bigquery.dataset(datasetId, { projectId });
+    console.log(`dataset is ${dataset}`);
 
     // Fetch table metadata
     const [tables] = await dataset.getTables();

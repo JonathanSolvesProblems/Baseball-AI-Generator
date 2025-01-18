@@ -18,8 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const data = await response.text();
 
-        console.log('hitting ' + data);
-
         // Return the CSV data to the client
         res.status(200).send(data);
     } catch (error) {

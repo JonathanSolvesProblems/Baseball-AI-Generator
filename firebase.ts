@@ -66,9 +66,9 @@ const updateUserDetails = async (userId: string, firstName?: string, lastName?: 
       if (Object.keys(updates).length > 0) {
         // Update the document if there are changes
         await updateDoc(userDoc, updates);
-        console.log('User details updated successfully!');
+        // console.log('User details updated successfully!');
       } else {
-        console.log('No changes provided to update.');
+       // console.log('No changes provided to update.');
       }
     } catch (error) {
       console.error('Error updating user details: ', error);
@@ -90,7 +90,7 @@ const saveVideo = async (userId: string, videoURL: string, videoName: string, vi
             }
         })
 
-        console.log(`Video ${videoName} successfully saved by user ID ${userId}`);
+        //console.log(`Video ${videoName} successfully saved by user ID ${userId}`);
     } catch (error) {
         console.error(`Error saving video ${error}`);
     }
@@ -109,7 +109,7 @@ const saveArticle = async (userId: string, article: string, articleTitle: string
         articleSummary,
       });
 
-      console.log(`Article successfully saved by user ID ${userId}`);
+      //console.log(`Article successfully saved by user ID ${userId}`);
     } catch (error) {
       console.error(`Error saving article: ${error}`);
     }
@@ -211,7 +211,7 @@ const updateVideo = async (
     // Fetch the current document to get the existing videoSummary
     const videoDoc = await getDoc(videoDocRef);
     if (!videoDoc.exists()) {
-      console.log('No such video!');
+    //  console.log('No such video!');
       return;
     }
 
@@ -231,7 +231,7 @@ const updateVideo = async (
       ...(updates.videoSummary && { videoSummary: mergedVideoSummary }), // Use merged videoSummary
     });
 
-    console.log(`Video ${videoId} successfully updated for user ID ${userId}`);
+   // console.log(`Video ${videoId} successfully updated for user ID ${userId}`);
   } catch (error) {
     console.error(`Error updating video: ${error}`);
   }
@@ -245,7 +245,7 @@ const followPlayer = async (userId: string, playerId: string) => {
             followedAt: new Date(),
         });
 
-        console.log(`User ${userId} followed player ${playerId}`);
+        //console.log(`User ${userId} followed player ${playerId}`);
     } catch (error) {
         console.error(`Error following player: ${error}`);
     }
@@ -259,7 +259,7 @@ const followTeam = async (userId: string, teamId: string) => {
             followedAt: new Date(),
         });
 
-        console.log(`User ${userId} followed team ${teamId}`);
+        //console.log(`User ${userId} followed team ${teamId}`);
     } catch (error) {
         console.error(`Error following team: ${error}`);
     }
@@ -277,7 +277,7 @@ const unfollowPlayer = async (userId: string, playerId: string) => {
             deleteDoc(doc(db, 'users', userId, 'followedPlayers', docSnapshot.id));
         });
 
-        console.log(`User ${userId} unfollowed player ${playerId}`);
+        //console.log(`User ${userId} unfollowed player ${playerId}`);
     } catch (error) {
         console.error("Error unfollowing player: ", error);
     }
@@ -296,7 +296,7 @@ const unfollowTeam = async (userId: string, teamId: string) => {
             deleteDoc(doc(db, 'users', userId, 'followedTeams', docSnapshot.id));
         });
 
-        console.log(`User ${userId} unfollowed team ${teamId}`);
+        //console.log(`User ${userId} unfollowed team ${teamId}`);
     } catch (error) {
         console.error("Error unfollowing team: ", error);
     }
@@ -313,7 +313,7 @@ const getFollowedPlayers = async (userId: string) => {
             followedPlayers.push(docSnapshot.data().playerId);
         });
 
-        console.log(`Followed players for user ${userId}:`, followedPlayers);
+       // console.log(`Followed players for user ${userId}:`, followedPlayers);
         return followedPlayers;
     } catch (error) {
         console.error("Error fetching followed players: ", error);
@@ -333,7 +333,7 @@ const getFollowedTeams = async (userId: string) => {
             followedTeams.push(docSnapshot.data().teamId);
         });
 
-        console.log(`Followed teams for user ${userId}:`, followedTeams);
+       // console.log(`Followed teams for user ${userId}:`, followedTeams);
         return followedTeams;
     } catch (error) {
         console.error("Error fetching followed teams: ", error);
@@ -355,10 +355,10 @@ const getRandomFollowedPlayer = async (userId: string) => {
         if (followedPlayers.length > 0) {
             const randomIndex = Math.floor(Math.random() * followedPlayers.length);
             const randomFollowedPlayer = followedPlayers[randomIndex];
-            console.log(`Random followed player for user ${userId}:`, randomFollowedPlayer);
+      //      console.log(`Random followed player for user ${userId}:`, randomFollowedPlayer);
             return randomFollowedPlayer;
         } else {
-            console.log(`No followed players found for user ${userId}`);
+        //    console.log(`No followed players found for user ${userId}`);
             return null;
         }
     } catch (error) {
@@ -375,10 +375,10 @@ const deleteUserAccount = async (userId: string) => {
         const user = auth.currentUser;
         if (user) {
             await deleteUser(user);
-            console.log("User account deleted successfully");
+      //      console.log("User account deleted successfully");
 
             await auth.signOut();
-            console.log("User signed out after delete");
+    //        console.log("User signed out after delete");
         }
     } catch (error) {
         console.error(`Error deleting account: ${error}`);

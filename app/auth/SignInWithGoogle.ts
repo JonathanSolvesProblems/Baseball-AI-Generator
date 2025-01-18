@@ -7,7 +7,7 @@ const signInWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        console.log('Google user signed in:', user);
+     //   console.log('Google user signed in:', user);
 
         const displayName = user.displayName;
         const firstName = displayName ? displayName.split(" ")[0] : "Unknown";

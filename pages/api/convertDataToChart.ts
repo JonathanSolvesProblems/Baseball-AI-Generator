@@ -72,14 +72,14 @@ Output only the JSON result with no additional commentary.`;
     });
 
     const result: any = await chat.sendMessage(prompt);
-    console.log(`result is ${JSON.stringify(result)}`);
+  //  console.log(`result is ${JSON.stringify(result)}`);
     const output = result.response.candidates[0].content.parts[0].text;
     const cleanOutput = output
     .replace(/```json\s*/g, "") // Remove the opening ```json marker
     .replace(/```/g, "")        // Remove the closing ```
     .trim();                    // Remove leading/trailing whitespace
   
-  console.log("Clean Output:", cleanOutput);
+ // console.log("Clean Output:", cleanOutput);
 
     const rawDataJson = JSON.parse(cleanOutput);
 
