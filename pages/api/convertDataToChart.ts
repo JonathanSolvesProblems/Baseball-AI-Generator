@@ -74,14 +74,16 @@ Output only the JSON result with no additional commentary.`;
     const result: any = await chat.sendMessage(prompt);
   //  console.log(`result is ${JSON.stringify(result)}`);
     const output = result.response.candidates[0].content.parts[0].text;
+    console.log('output is', output);
     const cleanOutput = output
     .replace(/```json\s*/g, "") // Remove the opening ```json marker
     .replace(/```/g, "")        // Remove the closing ```
     .trim();                    // Remove leading/trailing whitespace
   
  // console.log("Clean Output:", cleanOutput);
-
+  console.log('json raw data', cleanOutput);
     const rawDataJson = JSON.parse(cleanOutput);
+  
 
     // Format the data for Chart.js
     const { chartData, chartOptions } = formatDataForChart(

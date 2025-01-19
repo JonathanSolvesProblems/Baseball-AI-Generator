@@ -7,6 +7,7 @@ import { useUser } from "./context/UserContext";
 import GraphGenerator from "./components/GraphGenerator";
 import { getBigQueryTablesAndSchemas } from "./utils/bigQuery";
 import ArticleGenerator from "./components/ArticleGenerator";
+import ImageGenerator from "./components/ImageGenerator";
 
 /*
 After getting the full season schedule, we can pick 1 game (via "gamePk") to pull detailed data for, as is done below (we default to the last game in the result above).
@@ -29,18 +30,19 @@ export default function Home() {
       // console.log("xxx " + JSON.stringify(data2));
     };
 
-    test();
+    //   test();
   }, []);
 
   return (
     <>
       <Header />
-      <ArticleGenerator />
+      {/* <ArticleGenerator /> */}
       {userId && followedPlayers && (
         <FollowedPlayerHomeRun followedPlayers={followedPlayers} />
       )}
       <Dashboard />
       <GraphGenerator />
+      <ImageGenerator />
     </>
   );
 }

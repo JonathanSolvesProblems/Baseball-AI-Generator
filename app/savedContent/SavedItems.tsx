@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import SavedVideosList from "./SavedVideosList";
 import SavedChartsList from "./savedChartsList";
+import SavedArticlesList from "./SavedArticlesList";
 
 const SavedItems = () => {
   const [activeTab, setActiveTab] = useState("videos");
@@ -34,11 +35,22 @@ const SavedItems = () => {
           >
             Charts
           </button>
+          <button
+            className={`tab flex-1 text-lg font-medium transition-all duration-200 ${
+              activeTab === "articles"
+                ? "tab-active bg-primary text-white"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+            onClick={() => setActiveTab("articles")}
+          >
+            Articles
+          </button>
         </div>
       </div>
       <div className="mt-8">
         {activeTab === "videos" && <SavedVideosList />}
         {activeTab === "charts" && <SavedChartsList />}
+        {activeTab === "articles" && <SavedArticlesList />}
       </div>
     </div>
   );

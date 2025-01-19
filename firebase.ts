@@ -99,7 +99,7 @@ const saveVideo = async (userId: string, videoURL: string, videoName: string, vi
 const saveArticle = async (userId: string, article: string, articleTitle: string) => {
     if (!userId || !article) return;
 
-    const articleSummary = article.substring(0, 200); // Preview of the article for summary
+    const articleSummary = article.substring(0, 200) + "..."; // Preview of the article for summary
 
     try {
       await addDoc(collection(db, 'users', userId, 'savedArticles'), {
@@ -414,4 +414,31 @@ const saveChart = async (userId: string, graphDetails: any) => {
     }
 }
 
-export { saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+// allow comments across articles and to share it with other users?
+const getSavedArticles = async (userId: string) => {
+    if (!userId) return [];
+
+    try {
+        const q = query(collection(db, "users", userId, "savedArticles"));
+        const querySnapshot = await getDocs(q);
+
+        const savedArticles = [];
+        for (const docSnapshot of querySnapshot.docs) {
+            const data = docSnapshot.data();
+            savedArticles.push({
+                id: docSnapshot.id,
+                savedDate: data.savedDate,
+                articleTitle: data.articleTitle,
+                articleContent: data.articleContent,
+                articleSummary: data.articleSummary,
+            });
+        }
+
+        return savedArticles;
+    } catch (error) {
+        console.error(`Error fetching saved articles for userId ${userId}`, error);
+        return [];
+    }
+};
+
+export { getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };

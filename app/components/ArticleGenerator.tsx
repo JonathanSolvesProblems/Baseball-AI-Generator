@@ -9,6 +9,7 @@ import {
 import { downloadPDF, parseSQL } from "../utils/helper";
 import { sendSQLQuerytoBigQuery } from "../utils/bigQuery";
 import { saveArticle } from "@/firebase";
+import ArticleDownloadButton from "./ArticleDownloadButton";
 
 // daily article idea, and allow users to change that.
 const ArticleGenerator = () => {
@@ -67,12 +68,10 @@ const ArticleGenerator = () => {
 
       {/* Download PDF Button */}
       <div className="flex justify-center mt-6">
-        <button
-          onClick={() => downloadPDF(article, "personalized_article")}
-          className="btn btn-primary rounded-full px-6 py-2 mr-4"
-        >
-          Download PDF
-        </button>
+        <ArticleDownloadButton
+          articleContent={article}
+          articleTitle={articleTitle}
+        />
 
         {userId && (
           <button
