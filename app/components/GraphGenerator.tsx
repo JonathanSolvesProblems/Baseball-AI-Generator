@@ -77,6 +77,7 @@ const GraphGenerator = () => {
     try {
       setLoadingProgress(25);
       const result = await askSQLQuestion(userPrompt);
+
       const cleanedSQL = parseSQL(JSON.parse(result).res);
 
       setLoadingProgress(50);
@@ -101,7 +102,8 @@ const GraphGenerator = () => {
     } catch (err) {
       console.error("Error asking SQL question:", err);
       setError(
-        "An error occurred while generating the chart. Please check your query and try again."
+        "An error occurred while generating the chart. Please check your query and try again: " +
+          err
       );
     } finally {
       setLoading(false);
