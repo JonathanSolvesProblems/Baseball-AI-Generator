@@ -4,10 +4,18 @@ import { getVertexProjectId } from '@/app/utils/geminiCalls';
 
 const getDatasetTablesAndSchemas = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const bigquery = new BigQuery();
+  
     const datasetId = 'mlb';
     const projectId = getVertexProjectId();
 
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '{}');
+
+    if (!credentials) throw new Error('Invalid crendetials');
+
+    const bigquery = new BigQuery({
+      projectId: credentials.projectId,
+      credentials
+    });
     // Get the dataset reference
     const dataset = bigquery.dataset(datasetId, { projectId });
 

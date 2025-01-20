@@ -4,15 +4,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 
 const getAccessToken = async (): Promise<string> => {
-    const clientEmail = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_EMAIL;
-    const privateKey = process.env.NEXT_PUBLIC_GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'); // Replace escaped newlines
+    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'); // Replace escaped newlines
   
     // Check if required environment variables are available
     if (!clientEmail || !privateKey) {
       throw new Error(
         `Missing required environment variables: ${
           !clientEmail ? 'NEXT_PUBLIC_GOOGLE_CLIENT_EMAIL' : ''
-        } ${!privateKey ? 'NEXT_PUBLIC_GOOGLE_PRIVATE_KEY' : ''}`
+        } ${!privateKey ? 'GOOGLE_PRIVATE_KEY' : ''}`
       );
     }
   

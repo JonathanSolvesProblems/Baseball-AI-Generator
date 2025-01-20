@@ -22,9 +22,17 @@ export default async function handler(
 
   try {
 
-    const bigquery = new BigQuery();
-    const datasetId = 'mlb';
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '{}');
+
+    if (!credentials) throw new Error('Invalid crendetials');
+
     const projectId = getVertexProjectId();
+    const bigquery = new BigQuery({
+      projectId: credentials.projectId,
+      credentials
+    });
+
+    const datasetId = 'mlb';
 
     // Get the dataset reference
     const dataset = bigquery.dataset(datasetId, { projectId });

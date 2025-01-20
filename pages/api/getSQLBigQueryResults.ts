@@ -1,10 +1,14 @@
-import { getBigQueryTablesAndSchemas } from "@/app/utils/bigQuery";
 import { getVertexProjectId } from "@/app/utils/geminiCalls";
 import { BigQuery } from "@google-cloud/bigquery";
 import { NextApiRequest, NextApiResponse } from 'next';
 
+const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '{}');
+
+if (!credentials) throw new Error('Invalid crendetials');
+
 const bigquery = new BigQuery({
-  projectId: getVertexProjectId(), // Replace with your GCP project ID
+  projectId: credentials.projectId,
+  credentials
 });
 
 export default async function handler(  req: NextApiRequest,
