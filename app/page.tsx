@@ -23,8 +23,7 @@ export default function Home() {
           <FollowedPlayerHomeRun followedPlayers={followedPlayers} />
         ) : null;
       case "recommendedArticle":
-        // <ArticleGenerator />;
-        return <> </>;
+        return <ArticleGenerator />;
       case "generateGraphs":
         return <GraphGenerator />;
       case "imageGenerator":
