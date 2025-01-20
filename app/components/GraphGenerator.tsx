@@ -21,17 +21,16 @@ const GraphGenerator = () => {
   const { userId } = useUser();
   const [userPrompt, setUserPrompt] = useState("");
   const [error, setError] = useState("");
-  const [response, setResponse] = useState("");
   const [graphDetails, setGraphDetails] = useState<GraphProps>();
   const [saving, setSaving] = useState(false);
   const [chartName, setChartName] = useState("");
   const [customDataLabels, setCustomDataLabels] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [completed, setCompleted] = useState(false);
 
   const handleNameChange = (newName: string) => {
     setChartName(newName);
-
     if (graphDetails) {
       setGraphDetails({
         ...graphDetails,
@@ -73,7 +72,7 @@ const GraphGenerator = () => {
     setLoading(true);
     setLoadingProgress(0);
     setError("");
-    setResponse("");
+    setCompleted(false);
 
     try {
       setLoadingProgress(25);
@@ -95,6 +94,10 @@ const GraphGenerator = () => {
       setChartName("Generated Chart");
       setCustomDataLabels(chartData.chartData.labels || []);
       setUserPrompt("");
+
+      setTimeout(() => {
+        setCompleted(true);
+      }, 500);
     } catch (err) {
       console.error("Error asking SQL question:", err);
       setError(
@@ -102,7 +105,6 @@ const GraphGenerator = () => {
       );
     } finally {
       setLoading(false);
-      setLoadingProgress(0);
     }
   };
 
@@ -115,8 +117,6 @@ const GraphGenerator = () => {
       const response = await saveChart(userId, graphDetails);
       if (response.error) {
         setError(response.error);
-      } else if (response.success) {
-        setResponse(response.success);
       }
     } catch (error: any) {
       console.error("Error saving chart:", error);
@@ -126,89 +126,99 @@ const GraphGenerator = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-base-200 p-4">
-      <div className="w-full max-w-md p-6 shadow-lg bg-white rounded-lg">
-        <h1 className="text-3xl font-bold text-center text-primary mb-4">
-          Generate a Chart
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="flex flex-col h-screen bg-base-200">
+      {/* Chart and Progress Area */}
+      <div className="flex-1 p-4 overflow-auto">
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+          {loading ? (
+            <div className="flex flex-col items-center space-y-4">
+              <div className="spinner border-t-4 border-primary h-16 w-16 rounded-full animate-spin"></div>
+              <p className="text-lg text-primary font-bold">
+                Generating Chart... {loadingProgress}%
+              </p>
+            </div>
+          ) : graphDetails ? (
+            <>
+              <h2
+                contentEditable
+                suppressContentEditableWarning
+                className="text-2xl font-bold text-center border-2 border-dashed border-primary focus:ring-2 focus:ring-primary rounded p-2 mb-4 outline-none"
+                onBlur={(e) =>
+                  handleNameChange(e.currentTarget.textContent || "")
+                }
+              >
+                {chartName || "Generated Chart"}
+              </h2>
+              <Graph
+                chartType={graphDetails.chartType}
+                chartData={graphDetails.chartData}
+                chartOptions={graphDetails.chartOptions}
+              />
+              <div className="flex flex-wrap mt-4 gap-2">
+                {customDataLabels.map((label, index) => (
+                  <div
+                    key={index}
+                    contentEditable
+                    suppressContentEditableWarning
+                    className="bg-gray-100 px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary hover:shadow-lg"
+                    onBlur={(e) =>
+                      handleLabelChange(
+                        index,
+                        e.currentTarget.textContent || ""
+                      )
+                    }
+                  >
+                    {label}
+                  </div>
+                ))}
+              </div>
+              {completed && (
+                <div className="mt-4 text-center">
+                  <p className="text-2xl font-bold text-green-600 animate-bounce">
+                    🎉 Chart Generated Successfully! 🎉
+                  </p>
+                </div>
+              )}
+              <button
+                onClick={saveChartToFirebase}
+                className={`btn btn-success mt-6 w-full ${
+                  saving ? "btn-disabled" : ""
+                }`}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save Graph"}
+              </button>
+            </>
+          ) : (
+            <p className="text-center text-gray-500">No chart generated yet.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Form Area */}
+      <div className="w-full bg-white shadow-inner py-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center justify-center space-x-4"
+        >
           <textarea
-            className="textarea textarea-bordered w-full"
+            className="textarea textarea-bordered w-3/4"
             placeholder="Enter your SQL question here..."
             value={userPrompt}
             onChange={(e) => setUserPrompt(e.target.value)}
           ></textarea>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className={`btn btn-primary w-full ${
-              loading ? "btn-disabled" : ""
-            }`}
+            className="btn btn-circle btn-primary flex items-center justify-center"
             disabled={loading}
           >
-            {loading ? "Generating Chart..." : "Submit"}
+            <span className="material-icons text-white text-2xl">send</span>
           </button>
         </form>
-        {loading && (
-          <div className="mt-4 flex flex-col items-center space-y-2">
-            <div className="spinner border-t-4 border-primary h-12 w-12 rounded-full animate-spin"></div>
-            <p className="text-gray-600">
-              Loading... {loadingProgress}% complete
-            </p>
-          </div>
-        )}
-        {response && (
-          <div className="mt-4 p-4 bg-green-100 text-green-700 rounded">
-            <pre className="whitespace-pre-wrap">{response}</pre>
-          </div>
+        {error && (
+          <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
         )}
       </div>
-      {graphDetails && (
-        <div className="mt-8 w-full max-w-4xl p-6 bg-white rounded-lg shadow-lg">
-          <div className="mb-4 text-center">
-            <h2
-              contentEditable
-              suppressContentEditableWarning
-              className="text-2xl font-bold border-b-2 border-gray-300 focus:border-primary outline-none"
-              onBlur={(e) =>
-                handleNameChange(e.currentTarget.textContent || "")
-              }
-            >
-              {chartName || "Generated Chart"}
-            </h2>
-          </div>
-          <Graph
-            chartType={graphDetails.chartType}
-            chartData={graphDetails.chartData}
-            chartOptions={graphDetails.chartOptions}
-          />
-          <div className="flex flex-wrap mt-4 gap-2">
-            {customDataLabels.map((label, index) => (
-              <div
-                key={index}
-                contentEditable
-                suppressContentEditableWarning
-                className="bg-gray-100 px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-primary"
-                onBlur={(e) =>
-                  handleLabelChange(index, e.currentTarget.textContent || "")
-                }
-              >
-                {label}
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={saveChartToFirebase}
-            className={`btn btn-success mt-6 w-full ${
-              saving ? "btn-disabled" : ""
-            }`}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save Graph"}
-          </button>
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        </div>
-      )}
     </div>
   );
 };
