@@ -1,7 +1,6 @@
 // pages/api/generate-sql.ts
 
-import { getBigQueryTablesAndSchemas } from '@/app/utils/bigQuery';
-import { getGeminiKey, getVertexProjectId } from '@/app/utils/geminiCalls';
+import { getGeminiKey } from '@/app/utils/geminiCalls';
 import { BigQuery } from '@google-cloud/bigquery';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -22,14 +21,20 @@ export default async function handler(
 
   try {
 
-    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '{}');
+    const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+    if (!credentialsJson) {
+      throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.');
+    }
 
-    if (!credentials) throw new Error('Invalid crendetials');
+    const credentials = JSON.parse(credentialsJson);
+    if (!credentials || !credentials.project_id) {
+      throw new Error('Invalid or missing credentials data.');
+    }
 
-    const projectId = getVertexProjectId();
+    const projectId = credentials.project_id; // Use the project_id from credentials
     const bigquery = new BigQuery({
-      projectId: credentials.projectId,
-      credentials
+      projectId,
+      credentials, // Pass the parsed credentials
     });
 
     const datasetId = 'mlb';
