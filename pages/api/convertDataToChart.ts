@@ -31,35 +31,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).send({ error: "Only POST requests are allowed" });
   }
 
-  const { rawData } = req.body;
+  const { query, rawData } = req.body;
 
   if (!rawData) {
     return res.status(400).send({ error: "Raw data is required." });
   }
 
   try {
-    const prompt = `Analyze the provided raw data and determine the most suitable chart type for visualization. The chart type must be one of the following: "bar", "line", "pie", "doughnut", "radar", "polarArea", "bubble", or "scatter". Based on the data, format the output in JSON with the following structure:
+    const prompt = `Analyze the provided raw data and determine the most suitable chart type for visualization. The output must be in this JSON format:
 
 {
-    "recommendedChartType": "string", // The recommended chart type (e.g., "bar", "line", etc.)
-    "formattedData": [ // The formatted data suitable for input to formatDataForChart
+    "recommendedChartType": "string", // Recommended chart type: "bar", "line", "pie", "doughnut", "radar", "polarArea", "bubble", or "scatter".
+    "formattedData": [ // Data formatted for charting with meaningful labels and values.
         {
-        "label": "string", // The label for this data point
-        "value": number     // The numerical value for this data point
+            "label": "string", // A meaningful label derived from the context of the input query or raw data.
+            "value": number    // The numerical value for this data point.
         }
     ],
-    "datasetLabel": "string" // A meaningful label for the dataset based on the context of the raw data
+    "datasetLabel": "string" // A specific and relevant name summarizing the dataset.
 }
 
-Constraints:
-1. Choose the chart type that best represents the data.
-2. Use the key names in the raw data to infer meaningful labels for the data points and the dataset.
-3. If the raw data contains only numerical values without labels, generate labels such as "Point 1", "Point 2", etc.
+### Instructions:
+1. **Context Sensitivity**: Use the input query or raw data context to infer precise labels and dataset names. For example:
+   - If the query is "What is the average exit velocity?" and the raw data contains numerical averages, use "Average Exit Velocity" as the datasetLabel and avoid generic labels like "Point 1".
+   - If no specific query or raw data keys are clear, use concise and descriptive placeholders (e.g., "Point 1", "Point 2").
+2. **Chart Type Selection**: Choose a chart type that best communicates the data's insights and relationships:
+   - Prefer "bar" or "line" for trends, "pie" or "doughnut" for proportions, etc.
+3. **Label Inference**: Derive meaningful labels for data points from:
+   - Raw data keys or structure.
+   - Context provided by the input query.
+   - Any descriptive fields in the raw data (e.g., "Exit Velocity" for averages or "Team" for categories).
+4. **Data Filtering**: For large datasets, include only the most relevant or top 10 data points. If unsure, prioritize concise, representative data.
+5. **Formatting**: Ensure all output values are well-structured and usable by charting libraries.
 
-Input raw data:
+### Input:
+Query: "${query}"
+Raw Data:
 ${JSON.stringify(rawData)}
 
-Output only the JSON result with no additional commentary.`;
+### Constraints:
+- Avoid overly generic placeholders unless no better alternatives are available.
+- Ensure the datasetLabel reflects the main concept or question being analyzed.
+- Output only the JSON result, without any additional commentary or explanation.
+`;
 
     const GEMINI_API_KEY = getGeminiKey();
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);

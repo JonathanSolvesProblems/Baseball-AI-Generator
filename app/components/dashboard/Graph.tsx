@@ -34,7 +34,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
+// TODO: Give control to user to modify info of chart.
 const chartComponents: Record<string, React.ElementType> = {
   bar: Bar,
   line: Line,
