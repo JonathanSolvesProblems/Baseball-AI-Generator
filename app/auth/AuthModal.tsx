@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
 import signInWithGoogle from "./SignInWithGoogle";
+import CloseIcon from "@mui/icons-material/Close";
+import GoogleIcon from "@mui/icons-material/Google";
+import LoginIcon from "@mui/icons-material/Login";
+import InputIcon from "@mui/icons-material/Input";
 
-// May want to check if user already logged in to be persistent
 const AuthModal = ({
   setIsModalOpen,
 }: {
@@ -22,83 +25,81 @@ const AuthModal = ({
 
   const handleGoogleSignIn = async () => {
     handleFormChange("google");
-    setLoading(true); // Set loading state to true when starting the sign-in process
-    setError(null); // Clear any previous error messages
+    setLoading(true);
+    setError(null);
     try {
-      await signInWithGoogle(); // Call your async Google sign-in function
-      // Handle successful sign-in (e.g., close the modal or update the UI)
+      await signInWithGoogle();
       setIsModalOpen(false);
     } catch (err) {
-      setError("Google sign-in failed. Please try again later: " + err); // Handle any errors that occur during the sign-in process
+      setError("Google sign-in failed. Please try again later: " + err);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="modal modal-open">
-        <div className="modal-box w-full max-w-md">
-          {currentForm !== "none" && (
-            <button
-              className="btn btn-ghost btn-sm absolute top-4 left-4"
-              onClick={() => setCurrentForm("none")}
-            >
-              Back
-            </button>
-          )}
+      <div className="bg-[#0a0a0a] text-gray-200 rounded-lg shadow-lg w-full max-w-md relative p-6">
+        {/* Close Icon */}
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-200"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <CloseIcon fontSize="large" />
+        </button>
 
+        {/* Modal Content */}
+        <div className="mt-16 space-y-6">
+          {/* Buttons Layout */}
           {currentForm === "none" && (
-            <div className="space-y-4">
+            <div className="flex justify-around items-center">
               <button
-                className="btn btn-primary w-full"
+                className="flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full w-20 h-20 shadow-md transition-all duration-200"
                 onClick={() => handleFormChange("login")}
               >
-                Login
+                <LoginIcon fontSize="large" />
+                <span className="mt-2 text-sm">Login</span>
               </button>
               <button
-                className="btn btn-outline w-full"
+                className="flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full w-20 h-20 shadow-md transition-all duration-200"
                 onClick={handleGoogleSignIn}
+                disabled={loading}
               >
-                Login with Google
+                <GoogleIcon fontSize="large" />
+                <span className="mt-2 text-sm">Google</span>
               </button>
               <button
-                className="btn btn-secondary w-full"
+                className="flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full w-20 h-20 shadow-md transition-all duration-200"
                 onClick={() => handleFormChange("signup")}
               >
-                Sign Up
+                <InputIcon fontSize="large" />
+                <span className="mt-2 text-sm">Sign Up</span>
               </button>
             </div>
           )}
 
+          {/* Login Form */}
           {currentForm === "login" && (
             <div>
               <SignInForm setIsModalOpen={setIsModalOpen} />
             </div>
           )}
+
+          {/* Sign Up Form */}
           {currentForm === "signup" && (
             <div>
               <SignUpForm setIsModalOpen={setIsModalOpen} />
             </div>
           )}
 
+          {/* Error Message */}
           {error && (
-            <div className="alert alert-error">
+            <div className="alert alert-error text-sm">
               <div>
                 <span>{error}</span>
               </div>
             </div>
           )}
-
-          <div className="modal-action">
-            {/* You can add a close button here if needed */}
-            <button
-              className="btn btn-primary"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </div>
         </div>
       </div>
     </div>

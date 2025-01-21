@@ -1,17 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
-import Dashboard from "./components/dashboard/Dashboard";
+
+import { useState } from "react";
 import Header from "./components/Header";
 import FollowedPlayerHomeRun from "./components/FollowedPlayerHomeRun";
 import { useUser } from "./context/UserContext";
 import GraphGenerator from "./components/GraphGenerator";
-import { getBigQueryTablesAndSchemas } from "./utils/bigQuery";
 import ArticleGenerator from "./components/ArticleGenerator";
 import ImageGenerator from "./components/ImageGenerator";
 
-/*
-After getting the full season schedule, we can pick 1 game (via "gamePk") to pull detailed data for, as is done below (we default to the last game in the result above).
-*/
 export default function Home() {
   const { userId, followedPlayers } = useUser();
   const [activeTab, setActiveTab] = useState("recommendedVideos");
@@ -34,16 +30,19 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-[#0a0a0a] text-gray-200">
       <Header />
       <div className="flex flex-1">
-        <div className="w-60 p-4 bg-black text-white rounded-l-xl shadow-lg">
+        {/* Sidebar */}
+        <div className="w-60 p-4 bg-[#0a0a0a] text-white shadow-xl border-r border-gray-700">
           <ul className="space-y-4">
             <li>
               <button
                 onClick={() => setActiveTab("recommendedVideos")}
-                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 hover:bg-blue-600 ${
-                  activeTab === "recommendedVideos" ? "bg-blue-500" : ""
+                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
+                  activeTab === "recommendedVideos"
+                    ? "bg-blue-600"
+                    : "hover:bg-gray-800"
                 }`}
               >
                 Your Recommended Video
@@ -52,8 +51,10 @@ export default function Home() {
             <li>
               <button
                 onClick={() => setActiveTab("recommendedArticle")}
-                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 hover:bg-blue-600 ${
-                  activeTab === "recommendedArticle" ? "bg-blue-500" : ""
+                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
+                  activeTab === "recommendedArticle"
+                    ? "bg-blue-600"
+                    : "hover:bg-gray-800"
                 }`}
               >
                 Your Recommended Article
@@ -62,8 +63,10 @@ export default function Home() {
             <li>
               <button
                 onClick={() => setActiveTab("generateGraphs")}
-                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 hover:bg-blue-600 ${
-                  activeTab === "generateGraphs" ? "bg-blue-500" : ""
+                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
+                  activeTab === "generateGraphs"
+                    ? "bg-blue-600"
+                    : "hover:bg-gray-800"
                 }`}
               >
                 Generate Graphs
@@ -72,8 +75,10 @@ export default function Home() {
             <li>
               <button
                 onClick={() => setActiveTab("imageGenerator")}
-                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 hover:bg-blue-600 ${
-                  activeTab === "imageGenerator" ? "bg-blue-500" : ""
+                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
+                  activeTab === "imageGenerator"
+                    ? "bg-blue-600"
+                    : "hover:bg-gray-800"
                 }`}
               >
                 Image Generator
@@ -81,13 +86,11 @@ export default function Home() {
             </li>
           </ul>
         </div>
-        <div className="flex-1 p-6">{renderComponent()}</div>
+        {/* Main Content */}
+        <div className="flex-1 p-6 bg-[#121212] rounded-tr-xl">
+          {renderComponent()}
+        </div>
       </div>
     </div>
   );
 }
-
-// TODO: Hardcoded for now until AI is implemented
-// const baseballVideo = "https://www.youtube.com/watch?v=JjoAFfeIJ_I&ab_channel=BaseballHighlightsReel";
-
-// TODO: You have access to fan favorites in database, can use that for non-logged in users as starting point.

@@ -15,8 +15,8 @@
 }
 
 body {
+  margin: 0; /* Remove padding to prevent white space */
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  padding: 1rem;
 }

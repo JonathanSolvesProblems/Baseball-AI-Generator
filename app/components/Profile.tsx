@@ -8,6 +8,11 @@ import {
   signOut,
   updateUserDetails,
 } from "@/firebase";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import CloseIcon from "@mui/icons-material/Close";
+import PublishIcon from "@mui/icons-material/Publish";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 
 const Profile = ({
   setIsModalOpen,
@@ -72,102 +77,104 @@ const Profile = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="modal modal-open">
-        <div className="modal-box w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-center mb-4 text-black">
-            Profile
-          </h2>
+      <div className="bg-[#0a0a0a] text-gray-200 rounded-lg shadow-lg w-full max-w-md relative p-6">
+        {/* Close Icon */}
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-200"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <CloseIcon fontSize="large" />
+        </button>
 
-          {/* First Name Input */}
-          <div className="form-control">
-            <label htmlFor="firstName" className="label">
-              <span className="label-text text-black">First Name</span>
-            </label>
-            <input
-              id="firstName"
-              type="text"
-              placeholder="Enter your first name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              className="input input-bordered w-full text-black"
-            />
-          </div>
+        {/* Profile Heading */}
+        <h2 className="text-2xl font-semibold text-center mb-6 flex items-center justify-center gap-2">
+          <AccountBoxIcon fontSize="large" />
+          Profile
+        </h2>
 
-          {/* Last Name Input */}
-          <div className="form-control">
-            <label htmlFor="lastName" className="label">
-              <span className="label-text text-black">Last Name</span>
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              placeholder="Enter your last name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              className="input input-bordered w-full text-black"
-            />
-          </div>
+        {/* First Name Input */}
+        <div className="form-control">
+          <label htmlFor="firstName" className="label">
+            <span className="label-text text-gray-400">First Name</span>
+          </label>
+          <input
+            id="firstName"
+            type="text"
+            placeholder="Enter your first name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+            className="input input-bordered w-full bg-gray-800 text-gray-200"
+          />
+        </div>
 
-          {/* Preferred Language Dropdown */}
-          <div className="form-control">
-            <label htmlFor="language" className="label">
-              <span className="label-text text-black">Preferred Language</span>
-            </label>
-            <select
-              id="language"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="select select-bordered w-full text-black"
-            >
-              <option value="English">English</option>
-              <option value="Spanish">Spanish</option>
-              <option value="Japanese">Japanese</option>
-            </select>
-          </div>
+        {/* Last Name Input */}
+        <div className="form-control mt-4">
+          <label htmlFor="lastName" className="label">
+            <span className="label-text text-gray-400">Last Name</span>
+          </label>
+          <input
+            id="lastName"
+            type="text"
+            placeholder="Enter your last name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+            className="input input-bordered w-full bg-gray-800 text-gray-200"
+          />
+        </div>
 
-          <div className="form-control mt-4">
-            <button
-              type="button"
-              onClick={updateUserInfo}
-              className="btn btn-primary w-full mt-4"
-            >
-              Submit
-            </button>
-          </div>
+        {/* Preferred Language Dropdown */}
+        <div className="form-control mt-4">
+          <label htmlFor="language" className="label">
+            <span className="label-text text-gray-400">Preferred Language</span>
+          </label>
+          <select
+            id="language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="select select-bordered w-full bg-gray-800 text-gray-200"
+          >
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="Japanese">Japanese</option>
+          </select>
+        </div>
 
-          {/* Sign Out Button */}
-          <div className="form-control mt-4">
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="btn btn-secondary w-full"
-            >
-              Sign Out
-            </button>
-          </div>
+        {/* Submit Button */}
+        <div className="form-control mt-6">
+          <button
+            type="button"
+            onClick={updateUserInfo}
+            className="btn btn-primary w-full flex items-center justify-center gap-2"
+          >
+            <PublishIcon />
+            Submit
+          </button>
+        </div>
 
-          {/* Delete Account Button */}
-          <div className="form-control mt-4">
-            <button
-              type="button"
-              onClick={removeAccount}
-              className="btn btn-error w-full"
-            >
-              Delete Account
-            </button>
-          </div>
+        {/* Sign Out Button */}
+        <div className="form-control mt-4">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="btn btn-secondary w-full flex items-center justify-center gap-2"
+          >
+            <LogoutIcon />
+            Sign Out
+          </button>
+        </div>
 
-          {/* Close Button */}
-          <div className="modal-action">
-            <button
-              className="btn btn-primary w-full mt-4"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </div>
+        {/* Delete Account Button */}
+        <div className="form-control mt-4">
+          <button
+            type="button"
+            onClick={removeAccount}
+            className="btn btn-error w-full flex items-center justify-center gap-2"
+          >
+            <DeleteForeverIcon />
+            Delete Account
+          </button>
         </div>
       </div>
     </div>

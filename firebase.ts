@@ -441,6 +441,11 @@ const getSavedArticles = async (userId: string) => {
     }
 };
 
+const deleteChartById = async (userId: string, chartId: string) => {
+    const chartRef = doc(db, "users", userId, "savedCharts", chartId);
+    await deleteDoc(chartRef);
+  };
+
 // TODO: Can generate MLB.com link for article or video for specific content piece. Perhaps when you click on a player, can do a query of related content and then ask for link to source.
 // TODO: What are my favorite players? May have to add it to BigQuery too.
-export { getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+export { deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };

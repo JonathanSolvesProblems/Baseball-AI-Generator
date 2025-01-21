@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { askSQLQuestion } from "../utils/geminiCalls";
 import {
@@ -9,7 +7,10 @@ import {
 import Graph from "./dashboard/Graph";
 import { useUser } from "../context/UserContext";
 import { saveChart } from "@/firebase";
+import SendIcon from "@mui/icons-material/Send";
 import { parseSQL } from "../utils/helper";
+
+// https://mui.com/material-ui/material-icons/?query=send
 
 interface GraphProps {
   chartType: string;
@@ -128,14 +129,14 @@ const GraphGenerator = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-base-200">
+    <div className="flex flex-col h-screen bg-[#0a0a0a] text-gray-200">
       {/* Chart and Progress Area */}
       <div className="flex-1 p-4 overflow-auto">
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <div className="max-w-4xl mx-auto p-6 bg-[#121212] rounded-lg shadow-lg">
           {loading ? (
             <div className="flex flex-col items-center space-y-4">
-              <div className="spinner border-t-4 border-primary h-16 w-16 rounded-full animate-spin"></div>
-              <p className="text-lg text-primary font-bold">
+              <div className="spinner border-t-4 border-blue-500 h-16 w-16 rounded-full animate-spin"></div>
+              <p className="text-lg font-bold">
                 Generating Chart... {loadingProgress}%
               </p>
             </div>
@@ -144,7 +145,7 @@ const GraphGenerator = () => {
               <h2
                 contentEditable
                 suppressContentEditableWarning
-                className="text-2xl font-bold text-center border-2 border-dashed border-primary focus:ring-2 focus:ring-primary rounded p-2 mb-4 outline-none"
+                className="text-2xl font-bold text-center border-2 border-dashed border-blue-500 focus:ring-2 focus:ring-blue-500 rounded p-2 mb-4 outline-none bg-[#1b1b1b] text-white"
                 onBlur={(e) =>
                   handleNameChange(e.currentTarget.textContent || "")
                 }
@@ -162,7 +163,7 @@ const GraphGenerator = () => {
                     key={index}
                     contentEditable
                     suppressContentEditableWarning
-                    className="bg-gray-100 px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary hover:shadow-lg"
+                    className="bg-[#1b1b1b] px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:shadow-lg"
                     onBlur={(e) =>
                       handleLabelChange(
                         index,
@@ -176,14 +177,14 @@ const GraphGenerator = () => {
               </div>
               {completed && (
                 <div className="mt-4 text-center">
-                  <p className="text-2xl font-bold text-green-600 animate-bounce">
+                  <p className="text-2xl font-bold text-green-500 animate-bounce">
                     🎉 Chart Generated Successfully! 🎉
                   </p>
                 </div>
               )}
               <button
                 onClick={saveChartToFirebase}
-                className={`btn btn-success mt-6 w-full ${
+                className={`btn bg-blue-500 hover:bg-blue-600 mt-6 w-full ${
                   saving ? "btn-disabled" : ""
                 }`}
                 disabled={saving}
@@ -198,23 +199,25 @@ const GraphGenerator = () => {
       </div>
 
       {/* Form Area */}
-      <div className="w-full bg-white shadow-inner py-4">
+      <div className="w-full bg-[#121212] shadow-inner py-4">
         <form
           onSubmit={handleSubmit}
           className="flex items-center justify-center space-x-4"
         >
           <textarea
-            className="textarea textarea-bordered w-3/4"
-            placeholder="Enter your SQL question here..."
+            className="textarea textarea-bordered bg-[#1b1b1b] text-white w-3/4 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your baseball question here of data you would like to visualize..."
             value={userPrompt}
             onChange={(e) => setUserPrompt(e.target.value)}
           ></textarea>
           <button
             type="submit"
-            className="btn btn-circle btn-primary flex items-center justify-center"
+            className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-400 text-white rounded-full w-12 h-12 transition-transform duration-200 transform hover:scale-110"
             disabled={loading}
           >
-            <span className="material-icons text-white text-2xl">send</span>
+            <div className="flex items-center justify-center w-full h-full">
+              <SendIcon fontSize="small" />
+            </div>
           </button>
         </form>
         {error && (
