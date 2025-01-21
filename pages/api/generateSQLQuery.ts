@@ -32,15 +32,11 @@ export default async function handler(
       throw new Error('Invalid or missing credentials data.');
     }
 
-    console.error(credentials);
-
     const projectId = credentials.project_id; // Use the project_id from credentials
     const bigquery = new BigQuery({
       projectId,
       credentials, // Pass the parsed credentials
     });
-
-    console.error(bigquery);
 
     const datasetId = 'mlb';
 
