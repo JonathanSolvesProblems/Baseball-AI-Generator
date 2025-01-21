@@ -22,6 +22,7 @@ export default async function handler(
   try {
 
     const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
     if (!credentialsJson) {
       throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.');
     }
@@ -31,11 +32,15 @@ export default async function handler(
       throw new Error('Invalid or missing credentials data.');
     }
 
+    console.error(credentials);
+
     const projectId = credentials.project_id; // Use the project_id from credentials
     const bigquery = new BigQuery({
       projectId,
       credentials, // Pass the parsed credentials
     });
+
+    console.error(bigquery);
 
     const datasetId = 'mlb';
 
