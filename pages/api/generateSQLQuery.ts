@@ -15,22 +15,20 @@ export default async function handler(
 
   console.log(`query is ${query}`);
   if (!query) {
-    res.status(400).json({ message: 'Query is required' });
+    console.error('Query parameter is missing.');
+    return res.status(400).json({ message: 'Query is required' });
+  }
+
+  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || !process.env.GEMINI_API_KEY) {
+    return res.status(500).json({
+      message: 'Required environment variables are missing.',
+    });
   }
   
-
   try {
 
     const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-
-    if (!credentialsJson) {
-      throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.');
-    }
-
     const credentials = JSON.parse(credentialsJson);
-    if (!credentials || !credentials.project_id) {
-      throw new Error('Invalid or missing credentials data.');
-    }
 
     const projectId = credentials.project_id; // Use the project_id from credentials
     const bigquery = new BigQuery({
@@ -81,8 +79,7 @@ export default async function handler(
     
    
     const prompt = generatePrompt(query, tableSchemas);
-    
-    console.log(prompt);
+    console.log('Generated prompt:', prompt);
 
     const GEMINI_API_KEY = getGeminiKey();
 

@@ -9,6 +9,8 @@ import { useUser } from "../context/UserContext";
 import { saveChart } from "@/firebase";
 import SendIcon from "@mui/icons-material/Send";
 import { parseSQL } from "../utils/helper";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 // https://mui.com/material-ui/material-icons/?query=send
 
