@@ -12,14 +12,14 @@ export default async function handler(
 ) {
 
   const { query } = req.query;
-
-  console.log(`query test is ${query}`);
   if (!query) {
     console.error('Query parameter is missing.');
     return res.status(400).json({ message: 'Query is required' });
   }
+  
+  const GEMINI_API_KEY = getGeminiKey();
 
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || !process.env.GEMINI_API_KEY) {
+  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || !GEMINI_API_KEY) {
     console.error('Required environment variables are missing.');
     return res.status(500).json({
       message: 'Required environment variables are missing.',
@@ -81,8 +81,6 @@ export default async function handler(
    
     const prompt = generatePrompt(query, tableSchemas);
     console.log('Generated prompt:', prompt);
-
-    const GEMINI_API_KEY = getGeminiKey();
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
