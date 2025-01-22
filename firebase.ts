@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, deleteUser } from 'firebase/auth';
 import { ISavedVideos } from './app/utils/schemas';
+import { Chart } from 'chart.js';
 
 // Firebase configuration (get this from the Firebase console)
 const firebaseConfig = {
@@ -446,6 +447,24 @@ const deleteChartById = async (userId: string, chartId: string) => {
     await deleteDoc(chartRef);
   };
 
+
+
+  const updateChartById = async (
+    userId: string,
+    chartId: string,
+    updatedData: any
+  ): Promise<{ success?: string; error?: string }> => {
+    try {
+      const chartRef = doc(collection(db, "users", userId, "savedCharts"), chartId);
+      await updateDoc(chartRef, updatedData);
+      return { success: "Chart updated successfully." };
+    } catch (e: any) {
+      return { error: `Error updating chart: ${e.message}` };
+    }
+  };
+  
+
+
 // TODO: Can generate MLB.com link for article or video for specific content piece. Perhaps when you click on a player, can do a query of related content and then ask for link to source.
 // TODO: What are my favorite players? May have to add it to BigQuery too.
-export { deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+export { updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };

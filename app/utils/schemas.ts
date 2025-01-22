@@ -30,3 +30,11 @@ export interface ISavedVideos {
     videoUrl: string;
     videoSummary: string;
 }
+
+export type Chart = {
+    id: string;
+    chartType: string;
+    chartData: any;
+    chartOptions: any;
+    savedDate: Date | string;
+  };

@@ -34,7 +34,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-// TODO: Give control to user to modify info of chart.
+
 const chartComponents: Record<string, React.ElementType> = {
   bar: Bar,
   line: Line,
@@ -70,9 +70,22 @@ const Graph: React.FC<GraphProps> = ({
     );
   }
 
+  // Apply chartOptions.colors to datasets dynamically
+  const enhancedData = {
+    ...chartData,
+    datasets: chartData.datasets.map((dataset: any, index: number) => ({
+      ...dataset,
+      backgroundColor:
+        chartOptions?.colors?.[index] || dataset.backgroundColor || "#ffffff", // Apply updated colors
+      borderColor:
+        chartOptions?.colors?.[index] || dataset.borderColor || "#ffffff", // Apply updated colors
+      borderWidth: 1, // Ensure visible borders
+    })),
+  };
+
   return (
     <div className="graph-container">
-      <ChartComponent data={chartData} options={chartOptions} />
+      <ChartComponent data={enhancedData} options={chartOptions} />
     </div>
   );
 };
