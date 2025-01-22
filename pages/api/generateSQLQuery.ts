@@ -13,13 +13,14 @@ export default async function handler(
 
   const { query } = req.query;
 
-  console.log(`query is ${query}`);
+  console.log(`query test is ${query}`);
   if (!query) {
     console.error('Query parameter is missing.');
     return res.status(400).json({ message: 'Query is required' });
   }
 
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || !process.env.GEMINI_API_KEY) {
+    console.error('Required environment variables are missing.');
     return res.status(500).json({
       message: 'Required environment variables are missing.',
     });
