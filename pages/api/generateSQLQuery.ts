@@ -58,10 +58,12 @@ export default async function handler(
 
     const generatePrompt = (query: any, tables: any[]): string => {
       if (!query) {
+        console.error("Query is empty");
         throw new Error("Query is empty");
       }
 
       if (!Array.isArray(tables)) {
+        console.error('Invalid data: tables should be an array.');
         throw new TypeError('Invalid data: tables should be an array.');
       }
     
@@ -98,8 +100,13 @@ export default async function handler(
     const generatedSql = await response.text();
 
     res.status(200).json({ res: generatedSql });
-  } catch (error) {
-    console.error('Error generating SQL:', error);
-    res.status(500).json({ message: 'Failed to generate SQL' });
+  } catch (error: any) {
+      console.error('Error generating SQL:', error.message, {
+        stack: error.stack,
+      });
+      res.status(500).json({
+        message: 'Failed to generate SQL',
+        error: error.message,
+      });
   }
 }
