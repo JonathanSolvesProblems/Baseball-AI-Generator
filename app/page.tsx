@@ -18,8 +18,8 @@ export default function Home() {
         return userId && followedPlayers ? (
           <FollowedPlayerHomeRun followedPlayers={followedPlayers} />
         ) : null;
-      case "recommendedArticle":
-        return <ArticleGenerator />;
+      // case "recommendedArticle":
+      //   return <ArticleGenerator />;
       case "generateGraphs":
         return <GraphGenerator />;
       case "imageGenerator":
@@ -48,7 +48,7 @@ export default function Home() {
                 Your Recommended Video
               </button>
             </li>
-            <li>
+            {/* <li>
               <button
                 onClick={() => setActiveTab("recommendedArticle")}
                 className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
@@ -59,7 +59,7 @@ export default function Home() {
               >
                 Your Recommended Article
               </button>
-            </li>
+            </li> */}
             <li>
               <button
                 onClick={() => setActiveTab("generateGraphs")}
