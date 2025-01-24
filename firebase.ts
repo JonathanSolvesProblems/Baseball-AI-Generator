@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, deleteUser } from 'firebase/auth';
 import { ISavedVideos } from './app/utils/schemas';
-import { Chart } from 'chart.js';
 
 // Firebase configuration (get this from the Firebase console)
 const firebaseConfig = {
@@ -29,10 +28,19 @@ const setUserInfo = async (user: any, firstName: string, lastName: string, langu
 
         if (userDocSnap.exists()) return;
 
+         // Default notification preference
+        const notificationPreference = {
+            frequency: "daily", // Default to daily,
+            subscribed: true,
+            time: "05:00", // Default time
+            timeZone: "America/New_York", // Default time zone
+        };
+
         await setDoc(doc(db, "users", user.uid), {
             firstName,
             lastName,
             language,
+            notificationPreference
         })
 
     } catch (error) {
@@ -339,8 +347,6 @@ const getFollowedTeams = async (userId: string) => {
     } catch (error) {
         console.error("Error fetching followed teams: ", error);
     }
-
-    // e these IDs to fetch more details (like player names, stats, etc.) from a different collection if needed.
 }
 
 const getRandomFollowedPlayer = async (userId: string) => {
@@ -462,9 +468,63 @@ const deleteChartById = async (userId: string, chartId: string) => {
       return { error: `Error updating chart: ${e.message}` };
     }
   };
+
+// TODO: Give timezone option?
+const updateUserNotificationPreference = async (
+  userId: string,
+  frequency: "daily" | "weekly" | "monthly" = "daily",
+  dayOfWeek?: string, // e.g., "Monday"
+  dayOfMonth?: number, // e.g., 1
+  subscribed: boolean = true
+) => {
+  try {
+    const userDocRef = doc(db, "users", userId);
+
+    const notificationPreference: any = {
+      frequency,
+      subscribed,
+      time: "05:00", // Default time
+      timeZone: "America/New_York",
+    };
+
+    if (frequency === "weekly" && dayOfWeek) {
+      notificationPreference["dayOfWeek"] = dayOfWeek;
+    } else if (frequency === "monthly" && dayOfMonth) {
+      notificationPreference["dayOfMonth"] = dayOfMonth;
+    }
+
+    await updateDoc(userDocRef, {
+      notificationPreference,
+    });
+
+    console.log("Notification preference updated successfully!");
+  } catch (error) {
+    console.error("Error updating notification preference:", error);
+  }
+};
+
+const getUserNotificationPreference = async (userId: string) => {
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      return userData.notificationPreference || null;
+    } else {
+      console.warn("No such user found!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching notification preference:", error);
+    return null;
+  }
+};
+
+
   
 
 
 // TODO: Can generate MLB.com link for article or video for specific content piece. Perhaps when you click on a player, can do a query of related content and then ask for link to source.
 // TODO: What are my favorite players? May have to add it to BigQuery too.
-export { updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+export { getUserNotificationPreference, updateUserNotificationPreference, updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };

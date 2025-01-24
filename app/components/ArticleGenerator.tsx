@@ -7,7 +7,7 @@ import {
   generatePersonalizedArticle,
 } from "../utils/geminiCalls";
 import { downloadPDF, parseSQL } from "../utils/helper";
-import { sendSQLQuerytoBigQuery } from "../utils/bigQuery";
+import { generateArticleText, sendSQLQuerytoBigQuery } from "../utils/bigQuery";
 import { saveArticle } from "@/firebase";
 import ArticleDownloadButton from "./ArticleDownloadButton";
 
@@ -18,42 +18,19 @@ const ArticleGenerator = () => {
   const [articleTitle, setArticleTitle] = useState<string>("");
 
   useEffect(() => {
-    const getRandomFollowedPlayer = () => {
-      if (!followedPlayers.length) return null;
+    const fetchArticle = async () => {
+      if (!userId) return;
 
-      const randomIndex = Math.floor(Math.random() * followedPlayers.length);
-      return followedPlayers[randomIndex];
-    };
+      const result = await generateArticleText(userId, followedPlayers);
 
-    const generateArticleText = async () => {
-      if (!userId || !followedPlayers.length) return; // Ensure both followedPlayer and csvData are available
-
-      const randomPlayer = getRandomFollowedPlayer();
-
-      if (!randomPlayer) return;
-
-      const prompt = `Can you give me information related to player with id ${randomPlayer}`;
-
-      try {
-        const result = await askSQLQuestion(prompt); // Returns plain text response
-        const cleanedSQL = parseSQL(JSON.parse(result).res); // Extract the clean SQL query
-        console.log(`SQL query generated: ${cleanedSQL}`);
-
-        const data = await sendSQLQuerytoBigQuery(cleanedSQL);
-        console.log(`Query results: ${JSON.stringify(data)}`);
-        console.log(`Query results: ${JSON.stringify(data.data)}`);
-
-        const articleText = await generatePersonalizedArticle(data.data);
-        console.log("article is " + articleText);
-        setArticle(articleText);
-        setArticleTitle(articleText.split("\n")[0] || "Personalized Article");
-      } catch (err) {
-        console.error("Error asking SQL question:", err);
+      if (result) {
+        setArticle(result.article);
+        setArticleTitle(result.title);
       }
     };
 
-    generateArticleText();
-  }, [followedPlayers]);
+    fetchArticle();
+  }, [userId, followedPlayers]);
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white shadow-xl rounded-lg">

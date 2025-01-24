@@ -7,6 +7,9 @@ TODO: Consider adding more data to bigquery and making table dynamic:
   'https://storage.googleapis.com/gcp-mlb-hackathon-2025/datasets/2024-postseason-mlb-homeruns.csv'
 */
 
+import { askSQLQuestion, generatePersonalizedArticle } from "./geminiCalls";
+import { parseSQL } from "./helper";
+
 const sendSQLQuerytoBigQuery = async (sqlQuery: string) => {
     try {
           const queryResponse = await fetch(`/api/getSQLBigQueryResults`, {
@@ -55,7 +58,6 @@ const getChartFormatFromRawData = async (query: string, rawData: string) => {
 }
 
 
-
 const getBigQueryTablesAndSchemas = async () => {
   try {
         const dataTableAndSchemas = await fetch(`/api/getBigQueryTablesAndSchemas`);
@@ -75,5 +77,51 @@ const getBigQueryTablesAndSchemas = async () => {
   }
 }
 
+// Will be used for getting a random followed player or team.
+const getRandomValueFromArray = (array: string[]) => {
+  if (!array.length) return null;
 
-export { sendSQLQuerytoBigQuery, getChartFormatFromRawData, getBigQueryTablesAndSchemas }
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+};
+
+const generateArticleText = async (
+  userId: string | null,
+  followedPlayers: string[]
+): Promise<{ article: string; title: string } | null> => {
+  if (!userId || !followedPlayers.length) {
+    console.warn("User ID or followed players are not available.");
+    return null;
+  }
+
+  const randomPlayer = getRandomValueFromArray(followedPlayers);
+
+  if (!randomPlayer) {
+    console.warn("No random player found.");
+    return null;
+  }
+
+  const prompt = `Can you give me information related to player with id ${randomPlayer}`;
+
+  try {
+    const result = await askSQLQuestion(prompt); // Returns plain text response
+    const cleanedSQL = parseSQL(JSON.parse(result).res); // Extract the clean SQL query
+    console.log(`SQL query generated: ${cleanedSQL}`);
+
+    const data = await sendSQLQuerytoBigQuery(cleanedSQL);
+    console.log(`Query results: ${JSON.stringify(data)}`);
+
+    const articleText = await generatePersonalizedArticle(data.data);
+    console.log("Generated article:", articleText);
+
+    const articleTitle = articleText.split("\n")[0] || "Personalized Article";
+
+    return { article: articleText, title: articleTitle };
+  } catch (err) {
+    console.error("Error generating article text:", err);
+    return null;
+  }
+};
+
+
+export { generateArticleText, sendSQLQuerytoBigQuery, getChartFormatFromRawData, getBigQueryTablesAndSchemas }
