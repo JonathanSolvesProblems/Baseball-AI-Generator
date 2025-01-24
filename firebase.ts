@@ -327,8 +327,6 @@ const getFollowedPlayers = async (userId: string) => {
     } catch (error) {
         console.error("Error fetching followed players: ", error);
     }
-
-    // e these IDs to fetch more details (like player names, stats, etc.) from a different collection if needed.
 }
 
 const getFollowedTeams = async (userId: string) => {
