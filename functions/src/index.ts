@@ -1,6 +1,7 @@
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { logger } = require("firebase-functions");
 const admin = require("firebase-admin");
+const domain = 'https://baseball-ai-generator.vercel.app';
 
 admin.initializeApp();
 
@@ -8,7 +9,7 @@ admin.initializeApp();
 // every day 04:00
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
-  schedule: "every day 15:35",
+  schedule: "every day 16:18",
   timeZone: "America/New_York" }, async (event: any) => {
   // Fetch all users from Firestore
   const usersSnapshot = await admin.firestore().collection('users').get();
@@ -93,17 +94,39 @@ exports.sendDailyEmails = onSchedule({
 
         const { article, title } = articleData;
 
-
+        const emailHtml = `
+          <h1>${title}</h1>
+          <p>${article.replace(/\n/g, '<br>')}</p>
+          <a 
+            href="javascript:void(0)" 
+            style="
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              font-size: 16px;
+              color: white;
+              background-color: #007bff;
+              text-decoration: none;
+              border-radius: 5px;"
+            onclick="fetch('${domain}/api/saveArticle', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: '${userDoc.id}', 
+                article: \`${article}\`, 
+                articleTitle: '${title}'
+              })
+            }).then(response => response.json()).then(data => alert(data.message)).catch(err => alert('Error: ' + err.message))">
+            Save Article
+          </a>
+        `;
 
         await admin.firestore().collection("mail").add({
           to: [email],
           message: {
             subject: `Personalized Baseball Article: ${title}`,
             text: `Hello ${user.firstName},\n\n${article}`,
-            html: `
-              <h1>${title}</h1>
-              <p>${article.replace(/\n/g, "<br>")}</p>
-            `,
+            html: emailHtml,
           },
         });
 
@@ -121,8 +144,6 @@ const getRandomValueFromArray = (array: string[]) => {
   const randomIndex = Math.floor(Math.random() * array.length);
   return array[randomIndex];
 };
-
-const domain = 'https://baseball-ai-generator.vercel.app';
 
 const parseSQL = (text: string): string => {
   // Remove formatting, "SQL Query:", and ensure proper spacing
@@ -231,3 +252,24 @@ const generateArticleText = async (
     return null;
   }
 };
+
+// const saveArticle = async (userId: string, article: string, articleTitle: string) => {
+//   try {
+//     const response = await fetch(`${domain}/api/saveArticle`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ userId, article, articleTitle }),
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.statusText}`);
+//     }
+
+//     const data = await response.json();
+//     console.log(data.message); // "Article saved successfully!"
+//   } catch (error) {
+//     console.error('Failed to save article:', error);
+//   }
+// };
