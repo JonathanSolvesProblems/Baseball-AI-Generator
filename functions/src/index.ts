@@ -8,7 +8,7 @@ admin.initializeApp();
 // every day 04:00
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
-  schedule: "every day 09:12",
+  schedule: "every day 15:05",
   timeZone: "America/New_York" }, async (event: any) => {
   // Fetch all users from Firestore
   const usersSnapshot = await admin.firestore().collection('users').get();
@@ -60,14 +60,28 @@ exports.sendDailyEmails = onSchedule({
           continue;
         }
 
-        const article = generateArticleForUser(user);
+        const articleData = await generatePersonalizedArticle(
+          userDoc.id
+        );
+
+        if (!articleData) {
+          logger.warn(`Could not generate article for user ${userDoc.id}`);
+          continue;
+        }
+
+        const { article, title } = articleData;
+
+
 
         await admin.firestore().collection("mail").add({
           to: [email],
           message: {
-            subject: "Your Scheduled Article",
-            text: `Hello, here is your scheduled article: ${article}`,
-            html: `<h1>Your Scheduled Article</h1><p>${article}</p>`,
+            subject: `Personalized Baseball Article: ${title}`,
+            text: `Hello ${user.firstName},\n\n${article}`,
+            html: `
+              <h1>${title}</h1>
+              <p>${article.replace(/\n/g, "<br>")}</p>
+            `,
           },
         });
 
@@ -79,7 +93,24 @@ exports.sendDailyEmails = onSchedule({
   }
 });
 
-// Helper function to generate an article
-function generateArticleForUser(user: any) {
-  return `Hello ${user.firstName} ${user.lastName}, here is your article for today!`;
+
+const generatePersonalizedArticle = async (rawData: any) => {
+  try {
+    // Sending rawData to the server-side API
+    const res = await fetch('https://baseball-ai-generator.vercel.app/api/generateArticle?rawData=' + encodeURIComponent(JSON.stringify(rawData)));
+
+    // Checking if the response is OK and returning the generated article
+    if (!res.ok) {
+      throw new Error('Failed to fetch the personalized article');
+    }
+
+    const data = await res.json();
+
+    // Assuming the article is in the "article" key
+    return data.article;
+  } catch (error: any) {
+    const errorMessage = `An error occurred in the generatePersonalizedArticle step: ${error.message}`;
+    console.error(errorMessage);
+    return errorMessage;
+  }
 }
