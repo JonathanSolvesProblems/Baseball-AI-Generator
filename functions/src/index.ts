@@ -9,7 +9,7 @@ admin.initializeApp();
 // every day 04:00
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
-  schedule: "every day 16:18",
+  schedule: "every day 16:26",
   timeZone: "America/New_York" }, async (event: any) => {
   // Fetch all users from Firestore
   const usersSnapshot = await admin.firestore().collection('users').get();
@@ -98,7 +98,7 @@ exports.sendDailyEmails = onSchedule({
           <h1>${title}</h1>
           <p>${article.replace(/\n/g, '<br>')}</p>
           <a 
-            href="javascript:void(0)" 
+            href="${domain}/api/saveArticle?userId=${encodeURIComponent(userDoc.id)}&article=${encodeURIComponent(article)}&articleTitle=${encodeURIComponent(title)}" 
             style="
               display: inline-block;
               margin-top: 20px;
@@ -107,16 +107,7 @@ exports.sendDailyEmails = onSchedule({
               color: white;
               background-color: #007bff;
               text-decoration: none;
-              border-radius: 5px;"
-            onclick="fetch('${domain}/api/saveArticle', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                userId: '${userDoc.id}', 
-                article: \`${article}\`, 
-                articleTitle: '${title}'
-              })
-            }).then(response => response.json()).then(data => alert(data.message)).catch(err => alert('Error: ' + err.message))">
+              border-radius: 5px;">
             Save Article
           </a>
         `;
