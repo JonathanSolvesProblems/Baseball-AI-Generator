@@ -4,6 +4,8 @@ import { followPlayer, unfollowPlayer, getFollowedPlayers } from "@/firebase";
 import { PlayerDetails } from "../utils/schemas";
 import AuthModal from "../auth/AuthModal";
 import { getPlayerHeadshot } from "../utils/apiPaths";
+import { getFanContentInteractionDataFromTeamOrPlayer } from "../utils/bigQuery";
+import { useRouter } from "next/navigation";
 
 interface PlayerModalProps {
   player: PlayerDetails;
@@ -14,6 +16,7 @@ interface PlayerModalProps {
 const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
   const [isFollowing, setIsFollowing] = useState<boolean | undefined>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFollowedPlayers = async () => {
@@ -44,6 +47,28 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
       await followPlayer(userId, player.id);
     }
     setIsFollowing(!isFollowing);
+  };
+
+  const handleSearchRelatedContent = async () => {
+    if (!userId) return;
+    const result = await getFanContentInteractionDataFromTeamOrPlayer(
+      null, // teamId is not needed
+      player.id
+    );
+
+    if (result && result.data) {
+      // Use router from next/navigation to navigate
+
+      router.push(
+        `/players/${player.id}?data=${encodeURIComponent(
+          JSON.stringify(result.data)
+        )}&playerName=${encodeURIComponent(
+          player.fullName
+        )}&playerId=${encodeURIComponent(player.id)}`
+      );
+    } else {
+      console.warn("No related content found.");
+    }
   };
 
   if (!player) return;
@@ -98,6 +123,14 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
             >
               {isFollowing ? "Unfollow" : "Follow"} {player.fullName}
             </button>
+            {isFollowing && (
+              <button
+                onClick={handleSearchRelatedContent}
+                className="btn btn-secondary w-full py-2 mt-4 text-white hover:bg-gray-700 transition duration-200"
+              >
+                Search Related Content
+              </button>
+            )}
           </div>
         </div>
       </div>

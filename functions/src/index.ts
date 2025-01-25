@@ -9,7 +9,7 @@ admin.initializeApp();
 // every day 04:00
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
-  schedule: "every day 16:26",
+  schedule: "every day 04:30",
   timeZone: "America/New_York" }, async (event: any) => {
   // Fetch all users from Firestore
   const usersSnapshot = await admin.firestore().collection('users').get();

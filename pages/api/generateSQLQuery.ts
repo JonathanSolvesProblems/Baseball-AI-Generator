@@ -34,7 +34,7 @@ export default async function handler(
     let credentialsJson;
     try {
       const decodedCredentials = Buffer.from(credentialsBase64, 'base64').toString('utf-8');
-      console.log('Decoded credentials JSON:', decodedCredentials); // Debugging step (be cautious with sensitive data)
+  
       credentialsJson = JSON.parse(decodedCredentials);
     } catch (error) {
       console.error('Error decoding or parsing credentials:', error);

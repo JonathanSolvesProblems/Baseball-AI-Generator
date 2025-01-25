@@ -123,5 +123,104 @@ const generateArticleText = async (
   }
 };
 
+const getFanContentInteractionDataFromTeamOrPlayer = async (
+  teamId?: string | null,
+  playerId?: string | null
+): Promise<{ data: any[] } | null> => {
+  if ((!teamId && !playerId)) {
+    console.warn("Team or player id not available.");
+    return null;
+  }
 
-export { generateArticleText, sendSQLQuerytoBigQuery, getChartFormatFromRawData, getBigQueryTablesAndSchemas }
+  const whereClause = playerId
+  ? `${playerId} IN UNNEST(player_tags)`
+  : `${teamId} IN UNNEST(team_ids)`;
+
+    const query = `
+    SELECT 
+      slug, 
+      MIN(date_time_date) AS date_time_date, 
+      ANY_VALUE(content_headline) AS content_headline,
+      ANY_VALUE(content_type) AS content_type
+    FROM 
+      \`fluted-clock-446014-v7.mlb.fan_content_interaction_data\` 
+    WHERE 
+      ${whereClause}
+    GROUP BY 
+      slug
+  `;
+
+  console.log(query);
+
+  try {
+    const response = await sendSQLQuerytoBigQuery(query);
+    const transformedData = response.data.map((row: any) => {
+      const contentType = row.content_type === "video" ? "video" : "news";
+      return {
+        Headline: row.content_headline,
+        posted: row.date_time_date.value,
+        source: `https://www.mlb.com/${contentType}/${row.slug}`,
+      };
+    });
+
+    console.log("Transformed Data:", JSON.stringify(transformedData));
+
+    return { data: transformedData };
+  } catch (err) {
+    console.error("Error generating fan content interaction data:", err);
+    return null;
+  }
+};
+
+const getHomerunData = async (playerName: string | null,
+): Promise<{ data: any[] } | null> => {
+  if (!playerName) {
+    console.warn("User ID or player name is not available.");
+    return null;
+  }
+
+   const query = `
+    SELECT 
+      title, 
+      video, 
+      ExitVelocity, 
+      HitDistance, 
+      LaunchAngle, 
+      year, 
+      IsPostSeason 
+    FROM 
+      \`fluted-clock-446014-v7.mlb.homeruns\` 
+    WHERE title LIKE '%${playerName}%'
+    ORDER BY 
+      year DESC
+  `;
+
+  console.log("Generated Query:", query);
+
+  try {
+    // Send the query to BigQuery
+    const response = await sendSQLQuerytoBigQuery(query);
+
+    // Transform the data for easy rendering
+    const transformedData = response.data.map((row: any) => ({
+      Title: row.title,
+      Video: row.video,  // This is already a usable link
+      ExitVelocity: row.ExitVelocity,
+      HitDistance: row.HitDistance,
+      LaunchAngle: row.LaunchAngle,
+      Year: row.year,
+      IsPostSeason: row.IsPostSeason ? "Yes" : "No",
+    }));
+
+    console.log("Transformed Data:", JSON.stringify(transformedData));
+
+    return { data: transformedData };
+  } catch (err) {
+    console.error("Error fetching homerun data:", err);
+    return null;
+  }
+};
+
+
+
+export { getHomerunData, getFanContentInteractionDataFromTeamOrPlayer, generateArticleText, sendSQLQuerytoBigQuery, getChartFormatFromRawData, getBigQueryTablesAndSchemas }
