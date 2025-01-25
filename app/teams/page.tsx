@@ -15,7 +15,6 @@ const TeamsPage = async () => {
     <>
       <Header />
       <div>
-        <h1>Teams</h1>
         <TeamsTable teams={teams} />
       </div>
     </>

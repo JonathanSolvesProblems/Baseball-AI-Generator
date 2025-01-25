@@ -37,7 +37,6 @@ const Header = () => {
           </a>
         </li>
 
-        {/* Teams */}
         <li>
           <a onClick={() => handleNavigation("/teams")}>
             <GroupsIcon className="mr-2" />
@@ -45,7 +44,6 @@ const Header = () => {
           </a>
         </li>
 
-        {/* Players */}
         <li>
           <a onClick={() => handleNavigation("/players")}>
             <SportsHandballIcon className="mr-2" />
