@@ -31,7 +31,11 @@ const Header = () => {
       <ul className="menu bg-base-400 lg:menu-horizontal rounded-box flex w-full items-center">
         {/* Home */}
         <li>
-          <a onClick={() => handleNavigation("/")}>
+          <a
+            onClick={() => {
+              handleNavigation("/");
+            }}
+          >
             <SportsBaseballIcon className="mr-2" />
             Home
           </a>

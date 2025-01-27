@@ -3,15 +3,25 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext"; // Assuming you have a context to get userId
 import { getHomerunData } from "../utils/bigQuery";
+import { deleteVideo, getSavedVideos, saveVideo } from "@/firebase";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 interface HomerunDataProps {
   playerName: string;
+  homerunData: any[];
+  setHomerunData: (homerunData: any[]) => void;
 }
 
-const HomerunData = ({ playerName }: HomerunDataProps) => {
-  const [homerunData, setHomerunData] = useState<any[]>([]); // State to store the fetched homerun data
+const HomerunData = ({
+  playerName,
+  homerunData,
+  setHomerunData,
+}: HomerunDataProps) => {
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading status
   const [error, setError] = useState<string | null>(null); // State to manage error messages
+  const { userId, userDetails, savedVideos } = useUser();
+  const [savedStates, setSavedStates] = useState<boolean[]>([]); // State for tracking saved status
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +39,45 @@ const HomerunData = ({ playerName }: HomerunDataProps) => {
     fetchData();
   }, [playerName]); // Re-fetch when userId or playerId changes
 
+  // Check saved state for each video only when savedVideos or homerunData changes
+  useEffect(() => {
+    if (savedVideos && homerunData) {
+      const updatedSavedStates = homerunData.map((row) =>
+        savedVideos.some((video) => video.videoUrl === row.Video)
+      );
+      setSavedStates(updatedSavedStates);
+    }
+  }, [savedVideos, homerunData]); // Recalculate savedStates when savedVideos or homerunData changes
+
+  const toggleSave = async (index: number) => {
+    if (!userId) return;
+
+    const video = homerunData[index]; // Get the corresponding video
+    const updatedSavedStates = [...savedStates];
+
+    try {
+      if (savedStates[index]) {
+        // If already saved, delete the video
+        await deleteVideo(userId, video.Video);
+      } else {
+        // If not saved, save the video
+        await saveVideo(
+          userId,
+          video.Video,
+          video.Title,
+          "",
+          userDetails.language
+        );
+      }
+
+      // Update the saved state without causing an infinite loop
+      updatedSavedStates[index] = !savedStates[index];
+      setSavedStates(updatedSavedStates);
+    } catch (error) {
+      console.error("Error saving or deleting content:", error);
+    }
+  };
+
   // Render loading state or error message if needed
   if (loading) {
     return <p className="text-center mt-4 text-white">Loading...</p>;
@@ -42,7 +91,7 @@ const HomerunData = ({ playerName }: HomerunDataProps) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-white mb-4">
-        Homerun Data for {playerName}
+        Found Homerun Data for {playerName}
       </h1>
 
       <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
@@ -56,6 +105,7 @@ const HomerunData = ({ playerName }: HomerunDataProps) => {
               <th className="px-4 py-2 text-left">Launch Angle</th>
               <th className="px-4 py-2 text-left">Year</th>
               <th className="px-4 py-2 text-left">Postseason</th>
+              <th className="px-4 py-2 text-left">Save</th>
             </tr>
           </thead>
           <tbody>
@@ -80,6 +130,15 @@ const HomerunData = ({ playerName }: HomerunDataProps) => {
                 <td className="px-4 py-2">{row.LaunchAngle}</td>
                 <td className="px-4 py-2">{row.Year}</td>
                 <td className="px-4 py-2">{row.IsPostSeason}</td>
+                <td className="px-4 py-2">
+                  <button onClick={() => toggleSave(index)}>
+                    {savedStates[index] ? (
+                      <FavoriteIcon className="text-yellow-500" />
+                    ) : (
+                      <FavoriteBorderIcon className="text-gray-500" />
+                    )}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

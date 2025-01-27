@@ -5,8 +5,8 @@ import Header from "./components/Header";
 import FollowedPlayerHomeRun from "./components/FollowedPlayerHomeRun";
 import { useUser } from "./context/UserContext";
 import GraphGenerator from "./components/GraphGenerator";
-import ArticleGenerator from "./components/ArticleGenerator";
-import ImageGenerator from "./components/ImageGenerator";
+// import ArticleGenerator from "./components/ArticleGenerator";
+// import ImageGenerator from "./components/ImageGenerator";
 
 export default function Home() {
   const { userId, followedPlayers } = useUser();
@@ -22,8 +22,8 @@ export default function Home() {
       //   return <ArticleGenerator />;
       case "generateGraphs":
         return <GraphGenerator />;
-      case "imageGenerator":
-        return <ImageGenerator />;
+      // case "imageGenerator":
+      //   return <ImageGenerator />;
       default:
         return null;
     }
@@ -72,7 +72,7 @@ export default function Home() {
                 Generate Graphs
               </button>
             </li>
-            <li>
+            {/* <li>
               <button
                 onClick={() => setActiveTab("imageGenerator")}
                 className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
@@ -83,7 +83,7 @@ export default function Home() {
               >
                 Image Generator
               </button>
-            </li>
+            </li> */}
           </ul>
         </div>
         {/* Main Content */}

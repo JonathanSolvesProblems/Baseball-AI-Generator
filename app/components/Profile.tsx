@@ -15,6 +15,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CloseIcon from "@mui/icons-material/Close";
 import PublishIcon from "@mui/icons-material/Publish";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import { useRouter } from "next/navigation";
 
 const Profile = ({
   setIsModalOpen,
@@ -22,6 +23,7 @@ const Profile = ({
   setIsModalOpen(isModalOpen: boolean): void;
 }) => {
   const { userId, userDetails } = useUser();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("accountSettings");
   const [firstName, setFirstName] = useState(userDetails?.firstName || "");
@@ -97,6 +99,7 @@ const Profile = ({
     try {
       await signOut(auth);
       console.log("User signed out successfully");
+      router.push("/");
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error signing out:", error);
@@ -106,6 +109,7 @@ const Profile = ({
   const removeAccount = async () => {
     if (userId) {
       await deleteUserAccount(userId);
+      router.push("/");
       setIsModalOpen(false);
     }
   };

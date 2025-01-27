@@ -12,6 +12,7 @@ import {
   auth,
   getFollowedPlayers,
   getLoggedInUserDetails,
+  getSavedArticles,
   getSavedVideos,
 } from "@/firebase";
 import { fetchFollowedPlayers } from "../utils/apiPaths";
@@ -22,8 +23,10 @@ interface IUserContextType {
   followedPlayers: string[];
   playerDetails: PlayerDetails[];
   savedVideos: ISavedVideos[];
+  savedArticles: any[];
   loading: boolean;
   setSavedVideos: React.Dispatch<React.SetStateAction<ISavedVideos[]>>;
+  setSavedArticles: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 const UserContext = createContext<IUserContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [followedPlayers, setFollowedPlayers] = useState<string[]>([]);
   const [playerDetails, setPlayerDetails] = useState<PlayerDetails[]>([]);
   const [savedVideos, setSavedVideos] = useState<ISavedVideos[]>([]);
+  const [savedArticles, setSavedArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [userDetails, setUserDetails] = useState<any>();
 
@@ -52,18 +56,31 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!userId) return;
 
-    const retrieveUserDetailsAndVideos = async () => {
+    const retrieveUserDetailsAndContent = async () => {
       if (!userId) return;
-      const userDetails: any = await getLoggedInUserDetails(userId);
 
-      if (!userDetails) return;
+      try {
+        const userDetails: any = await getLoggedInUserDetails(userId);
+        if (!userDetails) return;
 
-      const savedVideos = await getSavedVideos(userId, userDetails.language);
-      setUserDetails(userDetails);
+        setUserDetails(userDetails);
 
-      if (!savedVideos) return;
+        const [videos, articles] = await Promise.all([
+          getSavedVideos(userId, userDetails.language).catch((err) => {
+            console.error("Error fetching videos:", err);
+            return [];
+          }),
+          getSavedArticles(userId).catch((err) => {
+            console.error("Error fetching articles:", err);
+            return [];
+          }),
+        ]);
 
-      setSavedVideos(savedVideos);
+        if (videos) setSavedVideos(videos);
+        setSavedArticles(articles);
+      } catch (error) {
+        console.error("Error retrieving user details or content:", error);
+      }
     };
 
     const retrieveFollowedPlayers = async () => {
@@ -96,7 +113,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
     retrieveFollowedPlayers();
-    retrieveUserDetailsAndVideos();
+    retrieveUserDetailsAndContent();
   }, [userId]);
 
   return (
@@ -107,8 +124,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         playerDetails,
         loading,
         savedVideos,
+        savedArticles,
         userDetails,
         setSavedVideos,
+        setSavedArticles,
       }}
     >
       {children}

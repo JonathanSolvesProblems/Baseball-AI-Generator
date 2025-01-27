@@ -4,39 +4,142 @@ import Header from "@/app/components/Header";
 import { useSearchParams } from "next/navigation";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import HomerunData from "@/app/components/HomerunData";
+import { useUser } from "@/app/context/UserContext";
+import {
+  deleteArticle,
+  deleteVideo,
+  getSavedArticles,
+  getSavedVideos,
+  saveArticle,
+  saveVideo,
+} from "@/firebase";
 
 const PlayerRelatedContent = () => {
   const searchParams = useSearchParams();
   const playerId = searchParams?.get("playerId");
   const data = searchParams?.get("data");
+  const [homerunData, setHomerunData] = useState<any[]>([]); // State to store the fetched homerun data
+  const {
+    userId,
+    userDetails,
+    savedVideos,
+    savedArticles,
+    loading,
+    setSavedArticles,
+    setSavedVideos,
+  } = useUser();
 
   const playerName = searchParams?.get("playerName") || "Unknown Player";
 
-  const relatedContent = data ? JSON.parse(data) : [];
+  const relatedContent = useMemo(() => (data ? JSON.parse(data) : []), [data]);
 
   const [savedStates, setSavedStates] = useState<boolean[]>(
     new Array(relatedContent.length).fill(false)
   );
 
-  if (!relatedContent.length) {
-    return <p className="text-center mt-4">No related content available.</p>;
+  useEffect(() => {
+    if (loading) return;
+
+    const fetchSavedContent = async () => {
+      try {
+        const updatedStates = relatedContent.map((row: any) => {
+          if (row.source.includes("video")) {
+            return savedVideos.some((video) => video.videoUrl === row.source);
+          } else {
+            return savedArticles.some(
+              (article) => article.articleTitle === row.Headline
+            );
+          }
+        });
+
+        // Update the state only if it has changed to avoid unnecessary re-renders
+        setSavedStates((prevStates) => {
+          if (
+            prevStates.length !== updatedStates.length ||
+            prevStates.some((state, idx) => state !== updatedStates[idx])
+          ) {
+            return updatedStates;
+          }
+          return prevStates;
+        });
+      } catch (error) {
+        console.error("Error fetching saved content:", error);
+      }
+    };
+
+    fetchSavedContent();
+  }, [relatedContent, savedVideos, savedArticles, loading]);
+
+  const refreshSavedContent = async () => {
+    if (!userId) return;
+
+    try {
+      const [videos, articles] = await Promise.all([
+        getSavedVideos(userId, userDetails.language),
+        getSavedArticles(userId),
+      ]);
+
+      if (videos) setSavedVideos(videos);
+      setSavedArticles(articles);
+    } catch (error) {
+      console.error("Error refreshing saved content:", error);
+    }
+  };
+
+  const toggleSave = async (index: number) => {
+    if (!userId || (!userDetails && !userDetails.language)) return;
+    const row = relatedContent[index]; // Get the corresponding row
+    const updatedSavedStates = [...savedStates];
+
+    try {
+      if (savedStates[index]) {
+        // If already saved, delete the content
+        if (row.source.includes("video")) {
+          await deleteVideo(userId, row.source);
+        } else {
+          await deleteArticle(userId, row.Headline);
+        }
+      } else {
+        // If not saved, save the content
+        if (row.source.includes("video")) {
+          await saveVideo(
+            userId,
+            row.source,
+            row.Headline,
+            row.videoSummary,
+            userDetails.language
+          );
+        } else {
+          await saveArticle(userId, row.source, row.Headline);
+        }
+      }
+
+      await refreshSavedContent();
+
+      // Toggle the save state
+      updatedSavedStates[index] = !savedStates[index];
+      setSavedStates(updatedSavedStates);
+    } catch (error) {
+      console.error("Error saving or deleting content:", error);
+    }
+  };
+
+  if (loading && !relatedContent.length) {
+    return <p className="text-center mt-4">Loading related content...</p>;
   }
 
-  const toggleSave = (index: number) => {
-    // Toggle the save state of the specific row
-    const updatedSavedStates = [...savedStates];
-    updatedSavedStates[index] = !updatedSavedStates[index];
-    setSavedStates(updatedSavedStates);
-  };
+  if (!relatedContent.length && !homerunData) {
+    return <p className="text-center mt-4">No related content available.</p>;
+  }
 
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-white mb-4">
-          Related Content for {playerName}
+          Found Related Content for {playerName}
         </h1>
 
         <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
@@ -84,7 +187,13 @@ const PlayerRelatedContent = () => {
           </table>
         </div>
       </div>
-      {playerId && <HomerunData playerName={playerName} />}
+      {playerId && (
+        <HomerunData
+          playerName={playerName}
+          homerunData={homerunData}
+          setHomerunData={setHomerunData}
+        />
+      )}
     </>
   );
 };

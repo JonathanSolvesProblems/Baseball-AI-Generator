@@ -72,28 +72,27 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
   };
 
   if (!player) return;
-
   return (
     <>
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full transform transition-all duration-300 ease-in-out scale-100 opacity-100">
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <div className="bg-gray-800 p-6 rounded-xl shadow-xl max-w-lg w-full transform transition-all duration-300 ease-in-out scale-100 opacity-100">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-2xl text-gray-600 hover:text-red-600 transition duration-200"
+            className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-red-500 transition duration-200"
           >
             &times;
           </button>
 
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-6">
             <img
               src={getPlayerHeadshot(player.id)}
               alt={`${player.fullName}'s headshot`}
-              className="w-32 h-32 object-cover rounded-full border-4 border-gray-200"
+              className="w-40 h-40 object-cover rounded-full border-4 border-gray-300 shadow-lg"
             />
-            <h2 className="text-2xl font-semibold text-gray-800">
+            <h2 className="text-3xl font-semibold text-white">
               {player.fullName}
             </h2>
-            <div className="w-full space-y-2 text-left text-gray-700">
+            <div className="w-full space-y-3 text-left text-gray-300">
               <p>
                 <strong>Birth City:</strong> {player.birthCity}
               </p>
@@ -119,14 +118,15 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
 
             <button
               onClick={toggleFollow}
-              className="btn btn-primary w-full py-2 mt-4 text-white hover:bg-blue-600 transition duration-200"
+              className="w-full py-3 mt-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg transform transition duration-300 ease-in-out"
             >
               {isFollowing ? "Unfollow" : "Follow"} {player.fullName}
             </button>
+
             {isFollowing && (
               <button
                 onClick={handleSearchRelatedContent}
-                className="btn btn-secondary w-full py-2 mt-4 text-white hover:bg-gray-700 transition duration-200"
+                className="w-full py-3 mt-4 bg-gray-700 text-white rounded-full hover:bg-gray-600 shadow-lg transform transition duration-300 ease-in-out"
               >
                 Search Related Content
               </button>

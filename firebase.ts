@@ -141,18 +141,6 @@ const getSavedVideos = async (userId: string, preferredLanguage: string) => {
             const videoUrl = data.videoURL;
             const videoSummary = data.videoSummary[preferredLanguage];
             
-        //   if (!videoSummary || !videoSummary[preferredLanguage]) {
-        //         const generatedSummary = await analyzeVideoWithAudio(videoUrl, preferredLanguage);
-        //         videoSummary = {
-        //             ...videoSummary,
-        //             [preferredLanguage]: generatedSummary
-        //         };
-
-        //         await updateDoc(docSnapshot.ref, { videoSummary });
-
-        //     }
-          
-
             savedVideos.push( {id: id, savedDate: savedDate, videoName: videoName, videoUrl: videoUrl, videoSummary: videoSummary } );
         };
 
@@ -519,10 +507,46 @@ const getUserNotificationPreference = async (userId: string) => {
   }
 };
 
-
+const deleteVideo = async (userId: string, videoURL: string) => {
+    try {
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'users', userId, 'savedVideos'),
+          where('videoURL', '==', videoURL)
+        )
+      );
+  
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+  
+      console.log(`Video with URL ${videoURL} deleted successfully.`);
+    } catch (error) {
+      console.error(`Error deleting video: ${error}`);
+    }
+  };
+  
+  const deleteArticle = async (userId: string, articleTitle: string) => {
+    try {
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'users', userId, 'savedArticles'),
+          where('articleTitle', '==', articleTitle)
+        )
+      );
+  
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+  
+      console.log(`Article with title "${articleTitle}" deleted successfully.`);
+    } catch (error) {
+      console.error(`Error deleting article: ${error}`);
+    }
+  };
   
 
 
 // TODO: Can generate MLB.com link for article or video for specific content piece. Perhaps when you click on a player, can do a query of related content and then ask for link to source.
 // TODO: What are my favorite players? May have to add it to BigQuery too.
-export { getUserNotificationPreference, updateUserNotificationPreference, updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+export { deleteArticle, deleteVideo, getUserNotificationPreference, updateUserNotificationPreference, updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
