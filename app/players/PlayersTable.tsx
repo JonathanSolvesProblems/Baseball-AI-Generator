@@ -92,6 +92,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
 
   const toggleFollowedFilter = () => {
     setIsFollowedOnly(!isFollowedOnly);
+    setSearchQuery("");
     filterPlayers(); // Trigger search when the icon is clicked
   };
 
