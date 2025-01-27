@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useEffect, useState } from "react";
-import HomerunData from "@/app/components/HomerunData";
 import { useUser } from "@/app/context/UserContext";
 import {
   deleteArticle,
@@ -17,10 +16,10 @@ import {
 } from "@/firebase";
 import { getFanContentInteractionDataFromTeamOrPlayer } from "@/app/utils/bigQuery";
 
-const PlayerRelatedContent = () => {
+const TeamRelatedContent = () => {
   const searchParams = useSearchParams();
-  const playerId = searchParams?.get("playerId");
-  const playerName = searchParams?.get("playerName") || "Unknown Player";
+  const teamId = searchParams?.get("teamId");
+  const teamName = searchParams?.get("teamName") || "Unknown Team";
 
   const {
     userId,
@@ -34,33 +33,32 @@ const PlayerRelatedContent = () => {
 
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
   const [savedStates, setSavedStates] = useState<boolean[]>([]);
-  const [homerunData, setHomerunData] = useState<any[]>([]); // State for homerun data
-  const [isContentLoading, setIsContentLoading] = useState(true); // State to track content loading
+  const [isContentLoading, setIsContentLoading] = useState(true);
 
-  // Fetch related content based on playerId
   useEffect(() => {
     const fetchRelatedContent = async () => {
-      if (!playerId) return;
+      if (!teamId) return;
       try {
-        setIsContentLoading(true);
+        setIsContentLoading(true); // Set loading to true before fetching
         const response = await getFanContentInteractionDataFromTeamOrPlayer(
-          null,
-          playerId
+          teamId,
+          null
         );
+
+        // Ensure the data property exists and is an array
         const content = Array.isArray(response?.data) ? response.data : [];
         setRelatedContent(content);
         setSavedStates(new Array(content.length).fill(false));
       } catch (error) {
         console.error("Failed to fetch related content:", error);
       } finally {
-        setIsContentLoading(false);
+        setIsContentLoading(false); // Set loading to false after fetching
       }
     };
 
     fetchRelatedContent();
-  }, [playerId]);
+  }, [teamId]);
 
-  // Update save states based on user's saved content
   useEffect(() => {
     if (loading || !relatedContent.length) return;
 
@@ -137,8 +135,7 @@ const PlayerRelatedContent = () => {
   if (isContentLoading) {
     return <p className="text-center mt-4">Loading related content...</p>;
   }
-
-  if (!relatedContent.length && !homerunData.length) {
+  if (!relatedContent.length) {
     return <p className="text-center mt-4">No related content available.</p>;
   }
 
@@ -147,7 +144,7 @@ const PlayerRelatedContent = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-white mb-4">
-          Found Related Content for {playerName}
+          Found Related Content for {teamName}
         </h1>
 
         <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
@@ -195,15 +192,8 @@ const PlayerRelatedContent = () => {
           </table>
         </div>
       </div>
-      {playerId && (
-        <HomerunData
-          playerName={playerName}
-          homerunData={homerunData}
-          setHomerunData={setHomerunData}
-        />
-      )}
     </>
   );
 };
 
-export default PlayerRelatedContent;
+export default TeamRelatedContent;

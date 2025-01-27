@@ -1,29 +1,51 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import TeamModal from "./TeamModal";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase";
+import { useUser } from "../context/UserContext";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 const TeamsTable = ({ teams }: { teams: any[] }) => {
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { userId, followedTeams } = useUser();
+  const [filteredTeams, setFilteredTeams] = useState<any[]>(teams);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isFollowedOnly, setIsFollowedOnly] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
-      }
+    filterTeams();
+  }, [searchQuery, teams, followedTeams, isFollowedOnly]);
+
+  const filterTeams = () => {
+    const filtered = teams.filter((team) => {
+      const query = searchQuery.toLowerCase().trim(); // Normalize query for case-insensitive comparison
+
+      const searchMatch =
+        (team.name && team.name.toLowerCase().includes(query)) ||
+        (team.locationName &&
+          team.locationName.toLowerCase().includes(query)) ||
+        // Convert team.season to string before calling toLowerCase()
+        (team.season && team.season.toString().toLowerCase().includes(query)) ||
+        (team.league?.name && team.league.name.toLowerCase().includes(query)) ||
+        (team.firstYearOfPlay &&
+          team.firstYearOfPlay.toString().includes(query)) ||
+        (team.active && team.active.toString().includes(query));
+
+      // If filtering by followed teams, check if the team is in the followed teams list
+      const isFollowed = followedTeams.includes(team.id);
+
+      return searchMatch && (!isFollowedOnly || isFollowed); // Show teams based on search and followed status
     });
 
-    return () => unsubscribe();
-  }, []);
+    setFilteredTeams(filtered);
+  };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedTeam(null);
+  const toggleFollowedFilter = () => {
+    setIsFollowedOnly((prev) => !prev);
+    setSearchQuery("");
+    filterTeams(); // Trigger search when the icon is clicked
   };
 
   const showTeamDetails = (team: any) => {
@@ -31,26 +53,61 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
     setShowModal(true);
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedTeam(null);
+  };
+
   return (
     <div className="p-4 space-y-4">
+      {/* Search bar and Followed teams toggle */}
+      <div className="flex items-center mb-4 space-x-4">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search teams..."
+          className="input input-bordered w-full max-w-xs bg-gray-800 text-white placeholder-gray-500"
+        />
+
+        {/* Tooltip and Toggle Followed Teams Only */}
+        <div className="relative inline-flex items-center group">
+          <button
+            onClick={toggleFollowedFilter}
+            className="p-2 bg-gray-800 text-white rounded-full hover:bg-blue-600"
+          >
+            {isFollowedOnly ? (
+              <FavoriteIcon className="text-yellow-500" />
+            ) : (
+              <FavoriteBorderIcon className="text-gray-500" />
+            )}
+          </button>
+          <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-sm rounded-md py-2 px-4 left-4 top-1/2 transform -translate-y-1/2 ml-4">
+            Show only followed teams
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
         <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Location</th>
+              <th className="px-4 py-2 text-left">League</th>
               <th className="px-4 py-2 text-left">Status</th>
             </tr>
           </thead>
           <tbody>
-            {teams.map((team) => (
+            {filteredTeams.map((team) => (
               <tr
                 key={team.id}
                 onClick={() => showTeamDetails(team)}
                 className="hover:bg-blue-500 cursor-pointer transition duration-200"
               >
-                <td className="px-4 py-2">{team.teamName}</td>
+                <td className="px-4 py-2">{team.name}</td>
                 <td className="px-4 py-2">{team.locationName}</td>
+                <td className="px-4 py-2">{team.league?.name}</td>
                 <td className="px-4 py-2">
                   {team.active ? "Active" : "Inactive"}
                 </td>
@@ -62,7 +119,7 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
 
       {showModal && selectedTeam && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50">
-          <TeamModal team={selectedTeam} onClose={closeModal} userId={userId} />
+          <TeamModal team={selectedTeam} onClose={closeModal} />
         </div>
       )}
     </div>

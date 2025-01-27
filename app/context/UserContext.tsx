@@ -11,6 +11,7 @@ import { ISavedVideos, PlayerDetails } from "../utils/schemas";
 import {
   auth,
   getFollowedPlayers,
+  getFollowedTeams,
   getLoggedInUserDetails,
   getSavedArticles,
   getSavedVideos,
@@ -21,6 +22,7 @@ interface IUserContextType {
   userId: string | undefined;
   userDetails: any;
   followedPlayers: string[];
+  followedTeams: string[];
   playerDetails: PlayerDetails[];
   savedVideos: ISavedVideos[];
   savedArticles: any[];
@@ -34,6 +36,7 @@ const UserContext = createContext<IUserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [followedPlayers, setFollowedPlayers] = useState<string[]>([]);
+  const [followedTeams, setFollowedTeams] = useState<string[]>([]);
   const [playerDetails, setPlayerDetails] = useState<PlayerDetails[]>([]);
   const [savedVideos, setSavedVideos] = useState<ISavedVideos[]>([]);
   const [savedArticles, setSavedArticles] = useState<any[]>([]);
@@ -112,7 +115,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setPlayerDetails(updatedPlayers);
     };
 
+    const retrieveFollowedTeams = async () => {
+      if (!userId) return;
+      const teams = await getFollowedTeams(userId); // Fetch followed teams
+
+      if (!teams) return;
+      setFollowedTeams(teams); // Set followed teams in state
+    };
+
     retrieveFollowedPlayers();
+    retrieveFollowedTeams();
     retrieveUserDetailsAndContent();
   }, [userId]);
 
@@ -121,6 +133,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         userId,
         followedPlayers,
+        followedTeams,
         playerDetails,
         loading,
         savedVideos,

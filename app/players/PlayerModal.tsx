@@ -39,8 +39,6 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
       return;
     }
 
-    console.log(`userId is ${userId}`);
-
     if (isFollowing) {
       await unfollowPlayer(userId, player.id);
     } else {
@@ -51,18 +49,10 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
 
   const handleSearchRelatedContent = async () => {
     if (!userId) return;
-    const result = await getFanContentInteractionDataFromTeamOrPlayer(
-      null, // teamId is not needed
-      player.id
-    );
 
-    if (result && result.data) {
-      // Use router from next/navigation to navigate
-
+    if (player.id && player.fullName) {
       router.push(
-        `/players/${player.id}?data=${encodeURIComponent(
-          JSON.stringify(result.data)
-        )}&playerName=${encodeURIComponent(
+        `/players/${player.id}?&playerName=${encodeURIComponent(
           player.fullName
         )}&playerId=${encodeURIComponent(player.id)}`
       );

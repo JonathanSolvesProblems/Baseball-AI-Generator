@@ -10,6 +10,7 @@ TODO: Consider adding more data to bigquery and making table dynamic:
 import { askSQLQuestion, generatePersonalizedArticle } from "./geminiCalls";
 import { parseSQL } from "./helper";
 
+
 const sendSQLQuerytoBigQuery = async (sqlQuery: string) => {
     try {
           const queryResponse = await fetch(`/api/getSQLBigQueryResults`, {
@@ -134,7 +135,7 @@ const getFanContentInteractionDataFromTeamOrPlayer = async (
 
   const whereClause = playerId
   ? `${playerId} IN UNNEST(player_tags)`
-  : `${teamId} IN UNNEST(team_ids)`;
+  : `'${teamId}' IN UNNEST(team_ids)`; 
 
     const query = `
     SELECT 

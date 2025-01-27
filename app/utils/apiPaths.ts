@@ -251,7 +251,6 @@ const getCaptionData = async () => {
     try {
         const res = await fetch('/api/getCaptionData');
         const data = await res.text();
-        console.log('x ' + data);
         return data;
     } catch (error) {
         console.error(`There was an error fetching the caption data: ${error}`);
@@ -417,7 +416,6 @@ const fetchPlayers = async (season?: number, fields?: string) => {
 }
 
 const getTeamLogo = (teamId: string) => {
-    console.log('teamID', teamId);
     return `https://www.mlbstatic.com/team-logos/${teamId}.svg`;
 }
 
