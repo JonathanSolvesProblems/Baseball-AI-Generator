@@ -34,7 +34,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
 
   useEffect(() => {
     filterPlayers();
-  }, [searchQuery, players, followedPlayers]);
+  }, [searchQuery, players, followedPlayers, isFollowedOnly]);
 
   const filterPlayers = () => {
     const filtered = players.filter((player) => {
@@ -91,7 +91,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
   };
 
   const toggleFollowedFilter = () => {
-    setIsFollowedOnly(!isFollowedOnly);
+    setIsFollowedOnly((prev) => !prev);
     setSearchQuery("");
     filterPlayers(); // Trigger search when the icon is clicked
   };
