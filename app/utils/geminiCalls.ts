@@ -112,10 +112,10 @@ const askSQLQuestion = async(query: string) => {
     }
 }
 
-const generatePersonalizedArticle = async (rawData: any) => {
-    try {
+const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
+    try { 
       // Sending rawData to the server-side API
-      const res = await fetch(`/api/generateArticle?rawData=${encodeURIComponent(JSON.stringify(rawData))}`);
+      const res = await fetch(`/api/generateArticle?rawData=${encodeURIComponent(JSON.stringify(rawData))}&language=${encodeURIComponent(language)}`);
   
       // Checking if the response is OK and returning the generated article
       if (!res.ok) {

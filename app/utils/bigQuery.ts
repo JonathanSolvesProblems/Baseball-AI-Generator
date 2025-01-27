@@ -88,7 +88,8 @@ const getRandomValueFromArray = (array: string[]) => {
 
 const generateArticleText = async (
   userId: string | null,
-  followedPlayers: string[]
+  followedPlayers: string[],
+  language: string = 'English'
 ): Promise<{ article: string; title: string } | null> => {
   if (!userId || !followedPlayers.length) {
     console.warn("User ID or followed players are not available.");
@@ -112,7 +113,7 @@ const generateArticleText = async (
     const data = await sendSQLQuerytoBigQuery(cleanedSQL);
     console.log(`Query results: ${JSON.stringify(data)}`);
 
-    const articleText = await generatePersonalizedArticle(data.data);
+    const articleText = await generatePersonalizedArticle(data.data, language);
     console.log("Generated article:", articleText);
 
     const articleTitle = articleText.split("\n")[0] || "Personalized Article";

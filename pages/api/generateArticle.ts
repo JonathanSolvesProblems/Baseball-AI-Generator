@@ -8,7 +8,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
 
-  const { rawData } = req.query;
+  const { rawData, language } = req.query;
 
   if (!rawData) {
     res.status(400).json({ message: 'prompt is required' });
@@ -19,12 +19,12 @@ export default async function handler(
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: `You only respond back in the language ${language || "English"}`});
 
 
     const chat = model.startChat({
       generationConfig: {
-          maxOutputTokens: 500,
+          maxOutputTokens: 500
       }
     });
 
@@ -42,14 +42,33 @@ export default async function handler(
       return;
     }
 
+    const isPlayer = dataArray.some((data) => data.position && data.team);
+    const isTeam = dataArray.some((data) => data.locationName && data.season);
 
+    const structure = isPlayer
+    ? `
+        - Highlight key details such as name, age, position, and team.
+        - Provide a brief background including birthplace, height, weight, and MLB debut.
+        - Include interesting facts about their career and achievements.
+        - Make it engaging and human-readable for a sports fan audience.
+        - Ensure that the article is generated in the language ${language}
+      `
+    : isTeam
+    ? `
+        - Highlight key details such as team name, location, season, and league.
+        - Provide a brief background on the team's history, achievements, and major players.
+        - Include any interesting facts like championships won or rivalries.
+        - Make it engaging and human-readable for a sports fan audience.
+        - Ensure that the article is generated in the language ${language}
+      `
+    : "";
+  
     const prompt = `
       Generate a personalized article based on the following data:
       ${JSON.stringify(dataArray, null, 2)}
+      
       Use the following structure:
-      - Highlight key details such as name, age, position, and team.
-      - Provide a brief background and interesting facts if available.
-      - Make it engaging and human-readable for a sports fan audience.
+      ${structure}
     `;
 
     console.log(prompt);

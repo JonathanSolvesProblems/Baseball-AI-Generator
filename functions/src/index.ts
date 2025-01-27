@@ -61,6 +61,8 @@ exports.sendDailyEmails = onSchedule({
           continue;
         }
 
+        const userLanguage = user.language || "English"; 
+
         const followedPlayersSnapshot = await admin
           .firestore()
           .collection('users')
@@ -76,16 +78,40 @@ exports.sendDailyEmails = onSchedule({
             }
           });
 
-          if (followedPlayers.length === 0) {
-            logger.log(`User ${userDoc.id} is not following any players, skipping.`);
+          const followedTeamsSnapshot = await admin.firestore()
+          .collection('users')
+          .doc(userDoc.id)
+          .collection('followedTeams')
+          .get();
+
+          const followedTeams: string[] = [];
+          followedTeamsSnapshot.forEach((docSnapshot: any) => {
+            const data = docSnapshot.data();
+            if (data && data.teamId) {
+              followedTeams.push(data.teamId);
+            }
+          });
+
+          if (followedPlayers.length === 0 && followedTeams.length === 0) {
+            logger.log(`User ${userDoc.id} is not following any players or teams, skipping.`);
             continue;
           }
   
+          let articleData;
 
-        const articleData = await generateArticleText(
-          userDoc.id,
-          followedPlayers
-        );
+          if (followedPlayers.length > 0 && followedTeams.length > 0) {
+            // Randomly select a player or team
+            const isPlayer = Math.random() < 0.5; // 50% chance for player, 50% for team
+            articleData = isPlayer
+              ? await generateArticleText(userDoc.id, followedPlayers, 'player', userLanguage) // Generate article for a random player
+              : await generateArticleText(userDoc.id, followedTeams, 'team', userLanguage); // Generate article for a random team
+          } else if (followedPlayers.length > 0) {
+            // Only generate article for player if there are no followed teams
+            articleData = await generateArticleText(userDoc.id, followedPlayers, 'player', userLanguage);
+          } else if (followedTeams.length > 0) {
+            // Only generate article for team if there are no followed players
+            articleData = await generateArticleText(userDoc.id, followedTeams, 'team', userLanguage);
+          }
 
         if (!articleData) {
           logger.warn(`Could not generate article for user ${userDoc.id}`);
@@ -184,10 +210,10 @@ const sendSQLQuerytoBigQuery = async (sqlQuery: string) => {
   }
 }
 
-const generatePersonalizedArticle = async (rawData: any) => {
+const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
   try {
     // Sending rawData to the server-side API
-    const res = await fetch(`${domain}/api/generateArticle?rawData=${encodeURIComponent(JSON.stringify(rawData))}`);
+    const res = await fetch(`${domain}/api/generateArticle?rawData=${encodeURIComponent(JSON.stringify(rawData))}&language=${encodeURIComponent(language)}`);
 
     // Checking if the response is OK and returning the generated article
     if (!res.ok) {
@@ -208,21 +234,25 @@ const generatePersonalizedArticle = async (rawData: any) => {
 
 const generateArticleText = async (
   userId: string | null,
-  followedPlayers: string[]
+  followedIds: string[],
+  dataType: 'player' | 'team',
+  language: string = 'English'
 ): Promise<{ article: string; title: string } | null> => {
-  if (!userId || !followedPlayers.length) {
-    console.warn("User ID or followed players are not available.");
+  if (!userId || !followedIds.length) {
+    console.warn("User ID or followed players/teams are not available.");
     return null;
   }
 
-  const randomPlayer = getRandomValueFromArray(followedPlayers);
+  const randomId = getRandomValueFromArray(followedIds);
 
-  if (!randomPlayer) {
-    console.warn("No random player found.");
+  if (!randomId) {
+    console.warn("No random player or team found.");
     return null;
   }
 
-  const prompt = `Can you give me information related to player with id ${randomPlayer}`;
+  const prompt = dataType === 'player'
+  ? `Can you give me information related to player with id ${randomId}?`
+  : `Can you give me information related to team with id ${randomId}?`;
 
   try {
     const result = await askSQLQuestion(prompt); // Returns plain text response
@@ -232,7 +262,7 @@ const generateArticleText = async (
     const data = await sendSQLQuerytoBigQuery(cleanedSQL);
     console.log(`Query results: ${JSON.stringify(data)}`);
 
-    const articleText = await generatePersonalizedArticle(data.data);
+    const articleText = await generatePersonalizedArticle(data.data, language);
     console.log("Generated article:", articleText);
 
     const articleTitle = articleText.split("\n")[0] || "Personalized Article";
@@ -243,6 +273,7 @@ const generateArticleText = async (
     return null;
   }
 };
+
 
 // const saveArticle = async (userId: string, article: string, articleTitle: string) => {
 //   try {

@@ -13,7 +13,7 @@ import ArticleDownloadButton from "./ArticleDownloadButton";
 
 // daily article idea, and allow users to change that.
 const ArticleGenerator = () => {
-  const { userId, followedPlayers } = useUser();
+  const { userId, followedPlayers, userDetails } = useUser();
   const [article, setArticle] = useState<string>("");
   const [articleTitle, setArticleTitle] = useState<string>("");
 
@@ -21,7 +21,11 @@ const ArticleGenerator = () => {
     const fetchArticle = async () => {
       if (!userId) return;
 
-      const result = await generateArticleText(userId, followedPlayers);
+      const result = await generateArticleText(
+        userId,
+        followedPlayers,
+        userDetails.language
+      );
 
       if (result) {
         setArticle(result.article);
