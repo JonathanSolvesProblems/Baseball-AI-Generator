@@ -37,7 +37,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
   }, [searchQuery, players, followedPlayers]);
 
   const filterPlayers = () => {
-    let filtered = players.filter((player) => {
+    const filtered = players.filter((player) => {
       const query = searchQuery.toLowerCase().trim(); // Normalize query for case-insensitive comparison
 
       const searchMatch =
