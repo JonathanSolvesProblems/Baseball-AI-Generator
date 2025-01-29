@@ -6,6 +6,8 @@ import AuthModal from "../auth/AuthModal";
 import { getPlayerHeadshot } from "../utils/apiPaths";
 import { getFanContentInteractionDataFromTeamOrPlayer } from "../utils/bigQuery";
 import { useRouter } from "next/navigation";
+import WarningIcon from "@mui/icons-material/Warning";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 interface PlayerModalProps {
   player: PlayerDetails;

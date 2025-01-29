@@ -96,7 +96,7 @@
         },
 */
 
-const getGamesBySeason = async (year = '2024') => {
+const getGamesBySeason = async (year = '2025') => {
 // TODO: Can add scheduled games on home page that are coming up: schedule_endpoint_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=2024'
 // can search for 2025, also a link for live feed to show a schedule. When a game is clicked, can then call full data.
     try {
@@ -148,7 +148,7 @@ const getLatestGameId: any = async (year = '2025') => {
             "time": "1:05",
             "ampm": "PM"
 */
-const getGameFeed = async (gameId?: any, year = '2024') => {
+const getGameFeed = async (gameId?: any, year = '2025') => {
     let gamePk = gameId;
     if (!gamePk) gamePk = await getLatestGameId(year); // take latest game by default for given year
 
@@ -225,14 +225,14 @@ const getGameFeed = async (gameId?: any, year = '2024') => {
     'code': 'B',
     'ballColor': 'rgba(39, 161, 39, 1.0)',
 */
-const getSingleGamePlay = async (gameId?: any, year = '2024') => {
+const getSingleGamePlay = async (gameId?: any, year = '2025') => {
     const data = await getGameFeed(gameId, year);
     const singleGamePlay = data.liveData.plays.currentPlay;
 
     return singleGamePlay;
 }
 
-const getSingleGamePlayId = async (gameId?: any, year = '2024') => {
+const getSingleGamePlayId = async (gameId?: any, year = '2025') => {
     const singleGamePlay = await getSingleGamePlay(gameId, year);
 
     const singleGamePlayId = singleGamePlay['playEvents'][singleGamePlay['playEvents'].length - 1]['playId'];
@@ -240,8 +240,8 @@ const getSingleGamePlayId = async (gameId?: any, year = '2024') => {
     return singleGamePlayId;
 }
 
-const getSingleGamePlayVideo = async () => {
-    const singleGamePlayId = await getSingleGamePlayId();
+const getSingleGamePlayVideo = async (gameId?: any, year = '2025') => {
+    const singleGamePlayId = await getSingleGamePlayId(gameId, year);
 
     return `https://www.mlb.com/video/search?q=playid=\"${singleGamePlayId}\"`;
 };

@@ -11,7 +11,7 @@ const ArticleDownloadButton = ({
   return (
     <button
       onClick={() => downloadPDF(articleContent, articleTitle)}
-      className="btn btn-primary rounded-full px-6 py-2 mr-4"
+      className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
     >
       Download PDF
     </button>

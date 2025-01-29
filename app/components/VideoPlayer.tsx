@@ -135,7 +135,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         {showAuthModal && <AuthModal setIsModalOpen={setShowAuthModal} />}
       </div>
-      {!videoSummary ? (
+      {/* {!videoSummary ? (
         <div>
           <button className="mt-4 btn btn-primary" onClick={getVideoSummary}>
             Get Summary
@@ -148,7 +148,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         <button className="mt-4 btn btn-primary" onClick={handleSaveVideo}>
           Save Video
         </button>
-      </div>
+      </div> */}
     </>
   );
 };

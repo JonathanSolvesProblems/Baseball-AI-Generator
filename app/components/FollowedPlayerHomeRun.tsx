@@ -73,8 +73,9 @@ const FollowedPlayerHomeRun = ({
   }, [csvData, followedPlayers]);
 
   return (
-    <div className="min-h-screen bg-black-100 flex flex-col justify-center items-center">
-      <h1 className="text-4xl font-bold mb-8">{videoName}</h1>
+    // <div className="min-h-screen bg-black-100 flex flex-col justify-center items-center"></div>
+    <div>
+      {/* <h1 className="text-4xl font-bold mb-8">{videoName}</h1> */}
 
       {homeRunVideos.length > 0 ? (
         <VideoPlayer
@@ -84,7 +85,7 @@ const FollowedPlayerHomeRun = ({
           height="450" // Optional: Set height
           controls={true} // Optional: Enable controls
           autoplay={false} // Optional: Enable autoplay
-          loop={false} // Optional: Enable loop
+          loop={true} // Optional: Enable loop
         />
       ) : (
         <p>No home run videos matched with followed players</p>

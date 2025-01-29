@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import ArticleDownloadButton from "../components/ArticleDownloadButton";
+import MinimizeIcon from "@mui/icons-material/Minimize";
 
 // TODO: If lang switches, will want to disable to button and such, maybe a new button to regenerate translation?
 interface ArticleModalProps {
@@ -25,40 +26,30 @@ const ArticleModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+      <div className="bg-gray-900 text-gray-200 p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+        {/* Minimize Icon Button */}
+        <button
+          onClick={closeModal} // Keep the closeModal function, you can customize its behavior
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+        >
+          <MinimizeIcon fontSize="large" /> {/* Minimize icon */}
+        </button>
+
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800">
+          <h2 className="text-2xl font-semibold text-gray-200">
             {articleTitle}
           </h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              className="h-6 w-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
         </div>
 
-        <div className="text-gray-700 mb-4">
+        <div className="text-gray-300 mb-4 max-h-96 overflow-y-auto">
           <p>{articleContent}</p>
         </div>
 
         <div className="mt-4">
           <label
             htmlFor="language"
-            className="text-sm font-medium text-gray-600"
+            className="text-sm font-medium text-gray-400"
           >
             Select Language:
           </label>
@@ -66,16 +57,18 @@ const ArticleModal = ({
             id="language"
             value={language}
             onChange={handleLanguageChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="en">English</option>
             <option value="es">Spanish</option>
             <option value="ja">Japanese</option>
           </select>
-          <ArticleDownloadButton
-            articleContent={articleContent}
-            articleTitle={articleTitle}
-          />
+          <div className="mt-4">
+            <ArticleDownloadButton
+              articleContent={articleContent}
+              articleTitle={articleTitle}
+            />
+          </div>
         </div>
       </div>
     </div>

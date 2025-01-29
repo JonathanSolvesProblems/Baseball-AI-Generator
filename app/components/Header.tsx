@@ -10,6 +10,7 @@ import SportsHandballIcon from "@mui/icons-material/SportsHandball";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import LoginIcon from "@mui/icons-material/Login";
+import AddchartIcon from "@mui/icons-material/Addchart";
 
 const Header = () => {
   const router = useRouter();
@@ -52,6 +53,13 @@ const Header = () => {
           <a onClick={() => handleNavigation("/players")}>
             <SportsHandballIcon className="mr-2" />
             Players
+          </a>
+        </li>
+
+        <li>
+          <a onClick={() => handleNavigation("/generateChart")}>
+            <AddchartIcon className="mr-2" />
+            Generate Chart
           </a>
         </li>
 

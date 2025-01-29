@@ -1,11 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getSavedArticles } from "@/firebase";
+import { deleteArticle, getSavedArticles } from "@/firebase";
 import { useUser } from "../context/UserContext";
-import { convertTimestampToDate, downloadPDF } from "../utils/helper";
+import CloseIcon from "@mui/icons-material/Close";
 import ArticleModal from "./ArticleModal";
 import ArticleDownloadButton from "../components/ArticleDownloadButton";
+
+// Function to check if a string is a valid URL
+const isValidUrl = (str: string) => {
+  const pattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/;
+  return pattern.test(str);
+};
 
 const SavedArticlesList = () => {
   const { userId } = useUser();
@@ -34,11 +40,11 @@ const SavedArticlesList = () => {
 
   if (!userId) {
     return (
-      <div className="p-6">
+      <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
         <h1 className="text-4xl font-semibold text-center mb-6">
           Saved Articles
         </h1>
-        <p className="text-center text-gray-600">
+        <p className="text-center text-gray-400">
           Please log in to view your saved articles.
         </p>
       </div>
@@ -48,6 +54,21 @@ const SavedArticlesList = () => {
   if (loading) {
     return <div className="text-center text-gray-600">Loading articles...</div>;
   }
+
+  const removeArticle = async (userId: string, articleTitle: string) => {
+    try {
+      // Call your delete function here, you may already have this implemented
+      // Example: await deleteArticleByTitle(userId, articleTitle);
+      // console.log(`Article '${articleTitle}' deleted`);
+      // Optionally remove the article from the state as well
+      setSavedArticles((prev: any) =>
+        prev.filter((article: any) => article.articleTitle !== articleTitle)
+      );
+      await deleteArticle(userId, articleTitle);
+    } catch (error) {
+      console.error("Error deleting article:", error);
+    }
+  };
 
   const openModal = (article: any) => {
     setSelectedArticle(article); // Store selected article data
@@ -59,7 +80,7 @@ const SavedArticlesList = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
       <h1 className="text-4xl font-semibold text-center mb-6">
         Saved Articles
       </h1>
@@ -67,34 +88,60 @@ const SavedArticlesList = () => {
         {savedArticles.map((article: any, index: number) => (
           <div
             key={index}
-            className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            className="card bg-gray-800 text-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg relative"
           >
+            <button
+              className="absolute top-2 right-2 bg-gray-900 hover:bg-gray-700 text-white rounded-full p-1 transition duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeArticle(userId, article.articleTitle);
+              }}
+              aria-label="Delete article"
+            >
+              <CloseIcon fontSize="small" />
+            </button>
+
             <div className="card-body p-4">
-              <h2 className="card-title text-xl font-bold text-gray-800">
+              <h2 className="card-title text-xl font-bold text-gray-200">
                 {article.articleTitle}
               </h2>
-              <p className="text-sm text-gray-500">
+              {/* <p className="text-sm text-gray-400">
                 Saved on:{" "}
                 {convertTimestampToDate(
                   article.savedDate.toString()
                 ).toString()}
-              </p>
-              <p className="text-sm text-gray-700 mt-2">
-                {article.articleSummary || "No summary available."}
-              </p>
-              <div className="card-actions justify-end mt-4">
-                <ArticleDownloadButton
-                  articleContent={article.articleContent}
-                  articleTitle={article.articleTitle}
-                />
+              </p> */}
+              {isValidUrl(article.articleContent) ? (
+                <div className="card-actions justify-end mt-4">
+                  <a
+                    href={article.articleContent}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                  >
+                    Source
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-300 mt-2">
+                    {article.articleSummary || "No summary available."}
+                  </p>
+                  <div className="card-actions justify-end mt-4">
+                    <ArticleDownloadButton
+                      articleContent={article.articleContent}
+                      articleTitle={article.articleTitle}
+                    />
 
-                <button
-                  onClick={() => openModal(article)}
-                  className="btn btn-primary bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
-                >
-                  Read More
-                </button>
-              </div>
+                    <button
+                      onClick={() => openModal(article)}
+                      className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                    >
+                      Read More
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         ))}
