@@ -37,7 +37,6 @@
     "papaparse": "^5.4.1",
     "re-resizable": "^6.10.3",
     "react": "^19.0.0",
-    "react-big-calendar": "^1.17.1",
     "react-calendar": "^5.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-color": "^2.19.3",
