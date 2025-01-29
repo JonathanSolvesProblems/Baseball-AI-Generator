@@ -33,9 +33,9 @@ const PopupMessage = ({ message, type, onClose }: PopupMessageProps) => {
           </h2>
           <p className="text-gray-300 text-center">{message}</p>
           <button
-            onClick={() => {
-              type === "error" ? onClose() : router.push("/savedContent");
-            }}
+            onClick={() =>
+              type === "error" ? onClose() : router.push("/savedContent")
+            }
             className="w-full py-3 mt-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg transform transition duration-300 ease-in-out"
           >
             {type === "error" ? "Close" : "Saved Content"}
