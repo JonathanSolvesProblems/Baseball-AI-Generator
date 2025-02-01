@@ -15,6 +15,7 @@ import {
   db,
   getSavedArticles,
   getSavedCharts,
+  getSavedVideos,
   updateArticle,
   updateChartById,
 } from "@/firebase";
@@ -41,6 +42,7 @@ const BaseballDashboard = () => {
   const { userId, userDetails, followedPlayers } = useUser();
   const [savedArticles, setSavedArticles] = useState<any[]>();
   const [savedCharts, setSavedCharts] = useState<any[]>();
+  const [savedVideos, setSavedVideos] = useState<any[]>();
   const [dashboardItems, setDashboardItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,8 +66,14 @@ const BaseballDashboard = () => {
       if (!userId) return;
       const articles = await getSavedArticles(userId);
       const charts = await getSavedCharts(userId);
+      const videos = await getSavedVideos(
+        userId,
+        userDetails?.language || "English"
+      );
+
       setSavedArticles(articles);
       setSavedCharts(charts);
+      setSavedVideos(videos);
       await fetchDashboardItems();
     };
     fetchData();
@@ -95,50 +103,86 @@ const BaseballDashboard = () => {
   const addToDashboard = async (item: any) => {
     if (!userId) return;
 
-    if (!dashboardItems.some((i) => i.id === item.id)) {
-      const nextOrder = dashboardItems.length + 1;
+    const sanitizedItem = sanitizeItemData(item);
 
-      // Create the dashboard item in Firebase
+    const dashboardItemsSnapshot = await getDocs(
+      collection(db, "users", userId, "dashboardItems")
+    );
+
+    const existingItems = dashboardItemsSnapshot.docs.map((doc) => doc.data());
+
+    if (!existingItems.some((i) => i.id === sanitizedItem.id)) {
+      const nextOrder = existingItems.length + 1;
+
       await addDoc(collection(db, "users", userId, "dashboardItems"), {
-        id: item.id,
-        type: item.articleTitle ? "article" : "chart",
+        id: sanitizedItem.id,
+        type: sanitizedItem.articleTitle
+          ? "article"
+          : sanitizedItem.chartData
+          ? "chart"
+          : "video",
         order: nextOrder,
         saved: true,
-        ...item,
+        ...sanitizedItem,
       });
 
-      setDashboardItems([...dashboardItems, { ...item, order: nextOrder }]);
+      setDashboardItems([...existingItems, { ...item, order: nextOrder }]);
     }
   };
 
+  const sanitizeItemData = (item: any) => {
+    const sanitizedItem: any = {};
+
+    Object.keys(item).forEach((key) => {
+      if (item[key] !== undefined && item[key] !== null) {
+        sanitizedItem[key] = item[key];
+      } else {
+        if (key === "videoSummary") {
+          sanitizedItem[key] = "";
+        }
+      }
+    });
+
+    return sanitizedItem;
+  };
   const removeFromDashboard = async (id: string) => {
     if (!userId) return;
 
     const updatedDashboardItems = dashboardItems.filter(
       (item) => item.id !== id
     );
-
     setDashboardItems(updatedDashboardItems);
 
-    const itemRef = doc(collection(db, "users", userId, "dashboardItems"), id);
-    await deleteDoc(itemRef);
-
-    updatedDashboardItems.forEach(async (item, index) => {
+    try {
       const itemRef = doc(
         collection(db, "users", userId, "dashboardItems"),
-        item.id
+        id
       );
-      await updateDoc(itemRef, { order: index + 1 });
-    });
+      await deleteDoc(itemRef);
+
+      updatedDashboardItems.forEach(async (item, index) => {
+        const itemRef = doc(
+          collection(db, "users", userId, "dashboardItems"),
+          item.id
+        );
+        await updateDoc(itemRef, { order: index + 1 });
+      });
+    } catch (error) {
+      console.error("Error removing item from dashboard:", error);
+
+      setDashboardItems(dashboardItems);
+    }
   };
 
   const filteredItems = [
     ...(savedArticles ?? []),
     ...(savedCharts ?? []),
+    ...(savedVideos ?? []),
   ].filter(
     (item) =>
       item.articleTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.chartType?.toLowerCase().includes(searchQuery.toLowerCase())
+      item.chartType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.videoName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const openModal = (article: any) => {
@@ -155,29 +199,25 @@ const BaseballDashboard = () => {
       const updatedChart = await fetchChartById(expandedChart.id);
       if (updatedChart) {
         setExpandedChart(updatedChart);
-        setGraphKey((prev) => prev + 1); // Ensure the expanded chart view is re-rendered
+        setGraphKey((prev) => prev + 1);
       }
 
-      // Refresh the list of charts in the grid
       await fetchSavedCharts();
     }
 
     setExpandedChart(null);
   };
 
-  // TODO: If in future, want to allow re-arrangement of order, this can keep track of it in database.
   const reorderDashboardItems = async (newOrder: any[]) => {
     if (!userId) return;
-    // newOrder is an array of items in the new desired order
     for (let i = 0; i < newOrder.length; i++) {
       const itemRef = doc(
         collection(db, "users", userId, "dashboardItems"),
         newOrder[i].id
       );
-      await updateDoc(itemRef, { order: i + 1 }); // Update the order for each item
+      await updateDoc(itemRef, { order: i + 1 });
     }
 
-    // Update local state
     setDashboardItems(newOrder);
   };
 
@@ -231,6 +271,16 @@ const BaseballDashboard = () => {
                       chartOptions={item.chartOptions}
                     />
                   </div>
+                </div>
+              )}
+
+              {"videoUrl" in item && item.videoUrl && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold">{item.videoName}</h3>
+                  <video className="w-full rounded-lg" controls>
+                    <source src={item.videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               )}
 
@@ -329,7 +379,9 @@ const BaseballDashboard = () => {
                   className="flex justify-between items-center bg-gray-800 p-2 mb-2 rounded"
                 >
                   <span>
-                    {item.articleTitle || item.chartData.datasets[0].label}
+                    {item.articleTitle ||
+                      item.videoName ||
+                      item.chartData.datasets[0].label}
                   </span>
                   <button onClick={() => addToDashboard(item)}>
                     <LibraryAddIcon className="text-white" />
@@ -377,7 +429,6 @@ const BaseballDashboard = () => {
         >
           <FollowedPlayerHomeRun followedPlayers={followedPlayers} />
 
-          {/* Icon to toggle collapse, positioned outside the container, but with border wrapping */}
           <div
             className="absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 cursor-pointer bg-gray-800 text-white rounded-full p-2 border-4 border-gray-700"
             onClick={() => setIsCollapsed(!isCollapsed)}

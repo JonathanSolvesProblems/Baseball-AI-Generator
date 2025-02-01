@@ -84,7 +84,7 @@ const updateUserDetails = async (userId: string, firstName?: string, lastName?: 
     }
   };
 
-const saveVideo = async (userId: string, videoURL: string, videoName: string, videoSummary?: string, preferredLanguage?: string) => {
+const saveVideo = async (userId: string, videoURL: string, videoName: string, videoSummary?: string, preferredLanguage?: string, saved: boolean = false) => {
 
     if (!videoSummary) videoSummary = '';
     if (!preferredLanguage) preferredLanguage = 'English';
@@ -96,7 +96,8 @@ const saveVideo = async (userId: string, videoURL: string, videoName: string, vi
             savedDate: new Date(),
             videoSummary: {
                 [preferredLanguage]: videoSummary
-            }
+            },
+            saved
         })
 
         //console.log(`Video ${videoName} successfully saved by user ID ${userId}`);
