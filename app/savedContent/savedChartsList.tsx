@@ -7,9 +7,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import MinimizeIcon from "@mui/icons-material/Minimize";
 import { ChromePicker, ColorResult } from "react-color";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 const SavedChartsList: React.FC = () => {
-  const { userId } = useUser();
+  const { userId, userDetails } = useUser();
   const [savedCharts, setSavedCharts] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedChart, setExpandedChart] = useState<any>();
@@ -18,7 +21,14 @@ const SavedChartsList: React.FC = () => {
     chartId: "",
     color: "",
   });
-  const [graphKey, setGraphKey] = useState(0); // Key to force re-render
+  const [graphKey, setGraphKey] = useState(0);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   const fetchSavedCharts = async () => {
     if (!userId) return;
@@ -103,11 +113,9 @@ const SavedChartsList: React.FC = () => {
     return (
       <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
         <h1 className="text-4xl font-semibold text-center mb-6">
-          Saved Charts
+          {t("savedCharts")}
         </h1>
-        <p className="text-center text-gray-400">
-          Please log in to view your saved charts.
-        </p>
+        <p className="text-center text-gray-400">{t("chartLoginMsg")}</p>
       </div>
     );
   }
@@ -115,7 +123,7 @@ const SavedChartsList: React.FC = () => {
   if (loading) {
     return (
       <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
-        <p className="text-center text-gray-400">Loading charts...</p>
+        <p className="text-center text-gray-400">{t("loadingCharts")}</p>
       </div>
     );
   }
@@ -124,16 +132,17 @@ const SavedChartsList: React.FC = () => {
     return (
       <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
         <h1 className="text-4xl font-semibold text-center mb-6">
-          Saved Charts
+          {t("savedCharts")}
         </h1>
-        <p className="text-center text-gray-400">No saved charts found.</p>
       </div>
     );
   }
 
   return (
     <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
-      <h1 className="text-4xl font-semibold text-center mb-6">Saved Charts</h1>
+      <h1 className="text-4xl font-semibold text-center mb-6">
+        {t("savedCharts")}
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {savedCharts.map((chart) => (
           <div

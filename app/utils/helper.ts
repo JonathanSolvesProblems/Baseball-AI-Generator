@@ -153,33 +153,10 @@ const downloadPDF = (article: string, articleName: string) => {
     doc.save(`${articleName}.pdf`);
 };
 
-export { downloadPDF, parseSQL, parseCSV, loadCSV, calculateSimilarity, extractPlayerName, combinePlayerData, findTopSimilarPlayers, getHomeRunOfFollowedPlayer, convertTimestampToDate }
+// Function to check if a string is a valid URL
+const isValidUrl = (str: string) => {
+  const pattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/;
+  return pattern.test(str);
+};
 
-/*
-The values you're seeing for the averages are actually in a typical range for baseball statistics, particularly for Exit Velocity, Hit Distance, and Launch Angle.
-
-Let's break it down:
-
-Exit Velocity (104.42 mph):
-
-Exit velocity is the speed of the ball as it leaves the bat. A value of 104 mph is quite high and would be considered a solid or powerful hit.
-The typical range for exit velocities in Major League Baseball can vary, but a range of 90-105 mph is normal for hard-hit balls. 104 mph is a good value and suggests that the player is hitting the ball with solid power.
-Hit Distance (404.05 feet):
-
-Hit distance represents the distance the ball travels after being hit.
-A distance of 404 feet is actually quite impressive and is consistent with a home run or a long hit. The typical home run in Major League Baseball has a distance between 350 to 450 feet depending on the ballpark, with many hits in the 400+ feet range being good power shots.
-Launch Angle (30.08 degrees):
-
-Launch angle refers to the angle at which the ball leaves the bat.
-A launch angle around 30 degrees is considered optimal for hitting home runs. In Major League Baseball, a launch angle between 25-35 degrees is typically where hitters can generate the most power and distance.
-A 30-degree launch angle is good for generating high fly balls that can clear the fence.
-Conclusion:
-The averages you've calculated are not too high. In fact, these numbers reflect the kind of power and distance that would typically be associated with strong hitters.
-An average exit velocity of 104 mph, a hit distance of 404 feet, and a launch angle of 30 degrees all point to a player who is making solid, power-driven contact.
-What you should check:
-If you’re still unsure about the values, you could consider:
-
-Comparing them against MLB averages. For example, an exit velocity of over 100 mph is above average for most hitters, and is generally considered a high-quality hit.
-If you expect these values to be below 100, you might be misunderstanding the scale of these statistics. They are generally above 100 mph for elite hitters.
-These numbers are normal or even impressive in the context of professional baseball statistics. If you expected averages under 100, it might be helpful to review the overall structure and what these values represent.
-*/
+export { isValidUrl, downloadPDF, parseSQL, parseCSV, loadCSV, calculateSimilarity, extractPlayerName, combinePlayerData, findTopSimilarPlayers, getHomeRunOfFollowedPlayer, convertTimestampToDate }

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
+import LoginIcon from "@mui/icons-material/Login";
 
 const SignInForm = ({
   setIsModalOpen,
@@ -21,11 +22,11 @@ const SignInForm = ({
       );
       const user = userCredential.user;
 
-      console.log("User signed in:", user);
+      // console.log("User signed in:", user);
 
       setIsModalOpen(false);
     } catch (error: any) {
-      setError(error.message); // Set error message if sign-in fails
+      setError(error.message);
       console.error("Error signing in:", error);
     }
   };
@@ -36,12 +37,16 @@ const SignInForm = ({
   };
 
   return (
-    <form onSubmit={handleSignIn} className="space-y-4">
-      <h2 className="text-2xl font-semibold text-center mb-4">Sign In</h2>
+    <form
+      onSubmit={handleSignIn}
+      className="space-y-6 p-6 bg-gray-800 rounded-lg shadow-lg w-96 mx-auto"
+    >
+      <h2 className="text-3xl font-semibold text-center text-white mb-4">
+        Sign In
+      </h2>
 
-      {/* Email Input */}
       <div className="form-control">
-        <label htmlFor="email" className="label">
+        <label htmlFor="email" className="label text-gray-400">
           <span className="label-text">Email</span>
         </label>
         <input
@@ -51,13 +56,12 @@ const SignInForm = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-gray-700 text-white placeholder-gray-400 border-gray-600 focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Password Input */}
       <div className="form-control">
-        <label htmlFor="password" className="label">
+        <label htmlFor="password" className="label text-gray-400">
           <span className="label-text">Password</span>
         </label>
         <input
@@ -67,22 +71,24 @@ const SignInForm = ({
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-gray-700 text-white placeholder-gray-400 border-gray-600 focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Error message display */}
       {error && (
-        <div className="alert alert-error">
+        <div className="alert alert-error bg-red-700 text-white">
           <div>
             <span>{error}</span>
           </div>
         </div>
       )}
 
-      {/* Submit Button */}
       <div className="form-control">
-        <button type="submit" className="btn btn-primary w-full">
+        <button
+          type="submit"
+          className="btn btn-primary w-full bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg py-2 flex items-center justify-center gap-2"
+        >
+          <LoginIcon />
           Sign In
         </button>
       </div>

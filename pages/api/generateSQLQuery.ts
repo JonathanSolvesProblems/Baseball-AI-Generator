@@ -51,7 +51,7 @@ export default async function handler(
 
     // Get the dataset reference
     const dataset = bigquery.dataset(datasetId, { projectId });
-    console.log(`dataset is ${dataset}`);
+    // console.log(`dataset is ${dataset}`);
 
     // Fetch table metadata
     const [tables] = await dataset.getTables();
@@ -91,7 +91,7 @@ export default async function handler(
     };
 
     const prompt = generatePrompt(query, tableSchemas);
-    console.log('Generated prompt:', prompt);
+    // console.log('Generated prompt:', prompt);
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 

@@ -4,7 +4,7 @@ import { generateImage } from "../utils/imagen";
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
-  const [sampleCount, setSampleCount] = useState(1); // Default sample count
+  const [sampleCount, setSampleCount] = useState(1);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +17,8 @@ const ImageGenerator = () => {
     try {
       const data = await generateImage(prompt, sampleCount);
 
-      console.log(`Image data: ${JSON.stringify(data)}`);
+      // console.log(`Image data: ${JSON.stringify(data)}`);
 
-      // Assuming the API returns an array of image URLs in `predictions`
       setGeneratedImages(data.predictions.map((item: any) => item.imageUri));
     } catch (err: any) {
       setError(err.message || "An error occurred");
@@ -29,7 +28,6 @@ const ImageGenerator = () => {
   };
 
   const handleSampleCountChange = (value: number) => {
-    // Ensure sampleCount stays between 1 and 4
     setSampleCount(Math.min(4, Math.max(1, value)));
   };
 

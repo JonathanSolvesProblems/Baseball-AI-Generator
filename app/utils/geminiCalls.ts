@@ -1,7 +1,3 @@
-// pro, vision, chat and streaming
-// can potentially add csv file with chat for context
-
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { loadCSV } from "./helper";
 
@@ -46,7 +42,7 @@ const getAnswerFromGemini = async (prompt: string) => {
         const result = await chat.sendMessage(prompt);
         const response = await result.response;
         const text = await response.text();
-        console.log('AI: ', text)
+        // console.log('AI: ', text)
     }
 
     await askAndRespond();

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthModal from "../auth/AuthModal";
 import { useUser } from "../context/UserContext";
@@ -11,13 +11,23 @@ import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import LoginIcon from "@mui/icons-material/Login";
 import AddchartIcon from "@mui/icons-material/Addchart";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 const Header = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userProfileModalOpened, setUserProfileModalOpened] =
     useState<boolean>(false);
-  const { userId } = useUser();
+  const { userId, userDetails } = useUser();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   const handleNavigation = (route: string) => {
     router.push(route);
@@ -30,7 +40,6 @@ const Header = () => {
   return (
     <>
       <ul className="menu bg-base-400 lg:menu-horizontal rounded-box flex w-full items-center">
-        {/* Home */}
         <li>
           <a
             onClick={() => {
@@ -38,40 +47,38 @@ const Header = () => {
             }}
           >
             <SportsBaseballIcon className="mr-2" />
-            Home
+            {t("home")}
           </a>
         </li>
 
         <li>
           <a onClick={() => handleNavigation("/teams")}>
             <GroupsIcon className="mr-2" />
-            Teams
+            {t("teams")}
           </a>
         </li>
 
         <li>
           <a onClick={() => handleNavigation("/players")}>
             <SportsHandballIcon className="mr-2" />
-            Players
+            {t("players")}
           </a>
         </li>
 
         <li>
           <a onClick={() => handleNavigation("/generateChart")}>
             <AddchartIcon className="mr-2" />
-            Generate Chart
+            {t("generateChart")}
           </a>
         </li>
 
-        {/* Saved Content */}
         <li>
           <a onClick={() => handleNavigation("/savedContent")}>
             <FolderCopyIcon className="mr-2" />
-            Saved Content
+            {t("savedContent")}
           </a>
         </li>
 
-        {/* Account / Login */}
         <li className="ml-auto mr-4">
           {userId ? (
             <a
@@ -79,18 +86,17 @@ const Header = () => {
               onClick={() => setUserProfileModalOpened(!userProfileModalOpened)}
             >
               <AccountBoxIcon />
-              Account
+              {t("account")}
             </a>
           ) : (
             <a className="flex items-center gap-2" onClick={toggleModal}>
               <LoginIcon />
-              Login or Sign up
+              {t("login")}
             </a>
           )}
         </li>
       </ul>
 
-      {/* Modals */}
       {isModalOpen && <AuthModal setIsModalOpen={setIsModalOpen} />}
       {userProfileModalOpened && (
         <Profile setIsModalOpen={setUserProfileModalOpened} />

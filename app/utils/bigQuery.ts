@@ -1,12 +1,3 @@
-/*
-TODO: Consider adding more data to bigquery and making table dynamic:
-
-  'https://storage.googleapis.com/gcp-mlb-hackathon-2025/datasets/2016-mlb-homeruns.csv',
-  'https://storage.googleapis.com/gcp-mlb-hackathon-2025/datasets/2017-mlb-homeruns.csv',
-  'https://storage.googleapis.com/gcp-mlb-hackathon-2025/datasets/2024-mlb-homeruns.csv',
-  'https://storage.googleapis.com/gcp-mlb-hackathon-2025/datasets/2024-postseason-mlb-homeruns.csv'
-*/
-
 import { askSQLQuestion, generatePersonalizedArticle } from "./geminiCalls";
 import { parseSQL } from "./helper";
 
@@ -108,13 +99,13 @@ const generateArticleText = async (
   try {
     const result = await askSQLQuestion(prompt); // Returns plain text response
     const cleanedSQL = parseSQL(JSON.parse(result).res); // Extract the clean SQL query
-    console.log(`SQL query generated: ${cleanedSQL}`);
+    // console.log(`SQL query generated: ${cleanedSQL}`);
 
     const data = await sendSQLQuerytoBigQuery(cleanedSQL);
-    console.log(`Query results: ${JSON.stringify(data)}`);
+    // console.log(`Query results: ${JSON.stringify(data)}`);
 
     const articleText = await generatePersonalizedArticle(data.data, language);
-    console.log("Generated article:", articleText);
+    // console.log("Generated article:", articleText);
 
     const articleTitle = articleText.split("\n")[0] || "Personalized Article";
 
@@ -152,7 +143,7 @@ const getFanContentInteractionDataFromTeamOrPlayer = async (
       slug
   `;
 
-  console.log(query);
+  // console.log(query);
 
   try {
     const response = await sendSQLQuerytoBigQuery(query);
@@ -165,7 +156,7 @@ const getFanContentInteractionDataFromTeamOrPlayer = async (
       };
     });
 
-    console.log("Transformed Data:", JSON.stringify(transformedData));
+    // console.log("Transformed Data:", JSON.stringify(transformedData));
 
     return { data: transformedData };
   } catch (err) {
@@ -197,7 +188,7 @@ const getHomerunData = async (playerName: string | null,
       year DESC
   `;
 
-  console.log("Generated Query:", query);
+  // console.log("Generated Query:", query);
 
   try {
     // Send the query to BigQuery
@@ -214,7 +205,7 @@ const getHomerunData = async (playerName: string | null,
       IsPostSeason: row.IsPostSeason ? "Yes" : "No",
     }));
 
-    console.log("Transformed Data:", JSON.stringify(transformedData));
+    // console.log("Transformed Data:", JSON.stringify(transformedData));
 
     return { data: transformedData };
   } catch (err) {

@@ -1,16 +1,26 @@
 "use client";
 import { getLoggedInUserDetails, updateVideo } from "@/firebase";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { convertTimestampToDate } from "../utils/helper";
 import { analyzeVideoWithAudio } from "../utils/geminiCalls";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 // Can add duration later on.
 const SavedVideosList = () => {
-  const { userId, savedVideos, setSavedVideos } = useUser();
+  const { userId, savedVideos, userDetails } = useUser();
   const [isGeneratingSummaryFor, setIsGeneratingSummaryFor] = useState<
     string | null
   >(null);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   // Sort the savedVideos array by savedDate in descending order (most recent first)
   const sortedVideos = [...savedVideos].sort((a, b) => {
@@ -37,19 +47,15 @@ const SavedVideosList = () => {
       }
 
       const updatedVideoSummary = {
-        ...video.videoSummary, // Preserve existing summaries
-        [userDetails.language]: newSummary, // Add or update the summary for the specific language
+        ...video.videoSummary,
+        [userDetails.language]: newSummary,
       };
 
       await updateVideo(userId, video.id, {
         videoName: video.videoName,
         videoURL: video.videoUrl,
-        videoSummary: updatedVideoSummary, // Use the updated summaries
+        videoSummary: updatedVideoSummary,
       });
-
-      // setSavedVideos((prevVideos: any[]) =>
-      //   prevVideos.map((v) => (v.id === video.id ? newSummary : v))
-      // );
     } catch (error) {
       console.error(error);
     } finally {
@@ -61,18 +67,18 @@ const SavedVideosList = () => {
     return (
       <div className="p-6">
         <h1 className="text-4xl font-semibold text-center mb-6">
-          Saved Videos
+          {t("savedVideos")}
         </h1>
-        <p className="text-center text-gray-600">
-          Please log in to view your saved videos.
-        </p>
+        <p className="text-center text-gray-600">{t("savedVideosLoginMsg")}</p>
       </div>
     );
   }
 
   return (
     <div className="p-6">
-      <h1 className="text-4xl font-semibold text-center mb-6">Saved Videos</h1>
+      <h1 className="text-4xl font-semibold text-center mb-6">
+        {t("savedVideos")}
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedVideos.map((video, index) => (
           <div
@@ -80,7 +86,7 @@ const SavedVideosList = () => {
             className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300"
           >
             <figure className="p-4">
-              {/* Optional: You can add a thumbnail image here if available */}
+              {/* Can add a thumbnail image here if available */}
               {/* <img
                 src="https://via.placeholder.com/300"
                 alt={video.videoName}

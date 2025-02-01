@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const gsUri = `gs://${bucketName}/${file.name}`;
 
-        console.log(`Video uploaded to ${gsUri}`);
+        // console.log(`Video uploaded to ${gsUri}`);
 
         const generativeModel = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
 

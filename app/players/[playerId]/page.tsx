@@ -16,11 +16,15 @@ import {
   saveVideo,
 } from "@/firebase";
 import { getFanContentInteractionDataFromTeamOrPlayer } from "@/app/utils/bigQuery";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 const PlayerRelatedContent = () => {
   const searchParams = useSearchParams();
   const playerId = searchParams?.get("playerId");
   const playerName = searchParams?.get("playerName") || "Unknown Player";
+  const { t } = useTranslation();
 
   const {
     userId,
@@ -31,6 +35,12 @@ const PlayerRelatedContent = () => {
     setSavedArticles,
     setSavedVideos,
   } = useUser();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
   const [savedStates, setSavedStates] = useState<boolean[]>([]);
@@ -135,11 +145,11 @@ const PlayerRelatedContent = () => {
   };
 
   if (isContentLoading) {
-    return <p className="text-center mt-4">Loading related content...</p>;
+    return <p className="text-center mt-4">{t("loadingRelatedContent")}</p>;
   }
 
   if (!relatedContent.length && !homerunData.length) {
-    return <p className="text-center mt-4">No related content available.</p>;
+    return <p className="text-center mt-4">{t("noRelatedContentAvailable")}</p>;
   }
 
   return (
@@ -147,17 +157,17 @@ const PlayerRelatedContent = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-white mb-4">
-          Found Related Content for {playerName}
+          {t("foundRelatedContentFor")} {playerName}
         </h1>
 
         <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
           <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
             <thead className="bg-gray-800 text-white">
               <tr>
-                <th className="px-4 py-2 text-left">Headline</th>
-                <th className="px-4 py-2 text-left">Posted</th>
-                <th className="px-4 py-2 text-left">Source</th>
-                <th className="px-4 py-2 text-left">Save</th>
+                <th className="px-4 py-2 text-left">{t("headline")}</th>
+                <th className="px-4 py-2 text-left">{t("posted")}</th>
+                <th className="px-4 py-2 text-left">{t("source")}</th>
+                <th className="px-4 py-2 text-left">{t("save")}</th>
               </tr>
             </thead>
             <tbody>
@@ -176,8 +186,8 @@ const PlayerRelatedContent = () => {
                       className="text-blue-600 hover:underline"
                     >
                       {row.source.includes("video")
-                        ? "Go to Video"
-                        : "Go to Article"}
+                        ? t("goToVideo")
+                        : t("goToArticle")}
                     </a>
                   </td>
                   <td className="px-4 py-2">

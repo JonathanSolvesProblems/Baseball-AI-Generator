@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { askSQLQuestion } from "../utils/geminiCalls";
 import {
   getChartFormatFromRawData,
@@ -12,6 +12,9 @@ import SendIcon from "@mui/icons-material/Send";
 import { parseSQL } from "../utils/helper";
 import Header from "./Header";
 import PopupMessage from "./PopupMessage";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 interface GraphProps {
   chartType: string;
@@ -20,7 +23,7 @@ interface GraphProps {
 }
 
 const GraphGenerator = () => {
-  const { userId } = useUser();
+  const { userId, userDetails } = useUser();
   const [userPrompt, setUserPrompt] = useState("");
   const [graphDetails, setGraphDetails] = useState<GraphProps>();
   const [saving, setSaving] = useState(false);
@@ -30,6 +33,13 @@ const GraphGenerator = () => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [successPopup, setSuccessPopup] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   const handleNameChange = (newName: string) => {
     setChartName(newName);
@@ -90,7 +100,7 @@ const GraphGenerator = () => {
         chartData: chartData.chartData,
         chartOptions: chartData.chartOptions,
       });
-      setChartName("Generated Chart");
+      setChartName(t("generatedChart"));
       setCustomDataLabels(chartData.chartData.labels || []);
       setUserPrompt("");
     } catch {
@@ -120,9 +130,7 @@ const GraphGenerator = () => {
       <div className="flex flex-col h-screen bg-[#0a0a0a] text-gray-200">
         {errorPopup && (
           <PopupMessage
-            message={
-              "Chart could not be generated, as prompt did not match with current baseball data in system. Please note that this is an MVP, and as more data is added, it is automatically reflected in this application to improve future prompts."
-            }
+            message={t("chartErrorMessage")}
             type={"error"}
             onClose={() => setErrorPopup(false)}
           />
@@ -130,9 +138,7 @@ const GraphGenerator = () => {
 
         {successPopup && (
           <PopupMessage
-            message={
-              "Successfully saved! You may now view your graph in the Saved Content tab."
-            }
+            message={t("graphSavedMessage")}
             type={"success"}
             onClose={() => setSuccessPopup(false)}
           />
@@ -144,7 +150,7 @@ const GraphGenerator = () => {
               <div className="flex flex-col items-center space-y-4">
                 <div className="spinner border-t-4 border-blue-500 h-16 w-16 rounded-full animate-spin"></div>
                 <p className="text-lg font-bold">
-                  Generating Chart... {loadingProgress}%
+                  {t("generatingChart")} {loadingProgress}%
                 </p>
               </div>
             ) : graphDetails && graphDetails.chartType ? (
@@ -157,7 +163,7 @@ const GraphGenerator = () => {
                     handleNameChange(e.currentTarget.textContent || "")
                   }
                 >
-                  {chartName || "Generated Chart"}
+                  {chartName || t("generatedChart")}
                 </h2>
                 <Graph
                   chartType={graphDetails.chartType}
@@ -191,18 +197,17 @@ const GraphGenerator = () => {
                   }`}
                   disabled={saving}
                 >
-                  {saving ? "Saving..." : "Save Graph"}
+                  {saving ? t("saving") : t("saveGraph")}
                 </button>
               </>
             ) : (
               <p className="text-center text-gray-500">
-                No chart generated yet.
+                {t("noChartGeneratedYet")}
               </p>
             )}
           </div>
         </div>
 
-        {/* Form Area */}
         <div className="w-full bg-[#121212] shadow-inner py-4">
           <form
             onSubmit={handleSubmit}
@@ -210,7 +215,7 @@ const GraphGenerator = () => {
           >
             <textarea
               className="textarea textarea-bordered bg-[#1b1b1b] text-white w-3/4 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your baseball question here of data you would like to visualize..."
+              placeholder={t("enterBaseballPrompt")}
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
             ></textarea>

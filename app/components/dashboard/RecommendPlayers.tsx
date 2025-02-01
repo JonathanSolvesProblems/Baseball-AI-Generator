@@ -8,10 +8,6 @@ import {
 } from "@/app/utils/helper";
 import { fetchFollowedPlayers } from "@/app/utils/apiPaths";
 
-// Could have a cool player movement screenscreen for recommended players
-// As well as on login screen too to show what it does.
-// Players must sign-in to follow players
-// "I need access to a baseball player database to find similar players based on the provided criteria. I cannot access external websites or databases. To find similar players, you would need to query a database (like Baseball-Reference, Fangraphs, or MLB's official API) using the following criteria:\n\n* **`pitchHand.code`:** \"R\" (Right)\n* **`primaryPosition.code`:** \"8\" (Outfielder) Note: This could be further refined to specific outfield positions (LF, CF, RF) depending on the database's structure and the level of detail desired.\n* **`batSide.code`:** \"R\" (Right)\n\n\nA query to such a database would return a list of players matching these characteristics. The more detailed the player profile in the database (including stats, etc.), the more refined the similarity assessment could be. For example, you might then consider adding similar height and weight or similar power/speed metrics to narrow the comparisons further.\n"
 const RecommendPlayers = ({
   userId,
   followedPlayer,
@@ -45,7 +41,7 @@ const RecommendPlayers = ({
       );
 
       setEnrichedPlayerDetails(enrichedPlayerData);
-      console.log(JSON.stringify(enrichedPlayerData));
+      // console.log(JSON.stringify(enrichedPlayerData));
     };
 
     getEnrichedPlayerDetails();
@@ -68,10 +64,10 @@ const RecommendPlayers = ({
         })
         .join("\n");
 
-      console.log(similarPlayersList);
+      // console.log(similarPlayersList);
     };
 
-    console.log(recommendSimilarPlayer);
+    // console.log(recommendSimilarPlayer);
   }, []);
 
   return <></>;
@@ -134,9 +130,6 @@ const RecommendPlayers = ({
   );
 };
 
-Data Normalization: If you're comparing various statistical features (ExitVelocity, LaunchAngle, etc.), consider normalizing the data before passing it to the AI model (e.g., scaling values to a range from 0 to 1). This helps avoid skewing results when comparing different magnitudes.
-Incorporating More Stats: In the future, you can enhance the recommendation system by including additional stats like batting average, home runs, and other advanced metrics that could improve the quality of the similarity results.
-Iterative Testing: Experiment with different formats and types of prompts to understand which combinations of attributes work best for the Gemini model.
   */
 };
 

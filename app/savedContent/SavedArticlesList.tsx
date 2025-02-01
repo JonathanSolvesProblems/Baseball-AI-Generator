@@ -6,19 +6,25 @@ import { useUser } from "../context/UserContext";
 import CloseIcon from "@mui/icons-material/Close";
 import ArticleModal from "./ArticleModal";
 import ArticleDownloadButton from "../components/ArticleDownloadButton";
-
-// Function to check if a string is a valid URL
-const isValidUrl = (str: string) => {
-  const pattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/;
-  return pattern.test(str);
-};
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
+import { isValidUrl } from "../utils/helper";
 
 const SavedArticlesList = () => {
-  const { userId } = useUser();
+  const { userId, userDetails } = useUser();
   const [savedArticles, setSavedArticles] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -42,25 +48,21 @@ const SavedArticlesList = () => {
     return (
       <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
         <h1 className="text-4xl font-semibold text-center mb-6">
-          Saved Articles
+          {t("savedArticles")}
         </h1>
-        <p className="text-center text-gray-400">
-          Please log in to view your saved articles.
-        </p>
+        <p className="text-center text-gray-400">{t("articleLoginMsg")}</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="text-center text-gray-600">Loading articles...</div>;
+    return (
+      <div className="text-center text-gray-600">{t("loadingArticles")}</div>
+    );
   }
 
   const removeArticle = async (userId: string, articleTitle: string) => {
     try {
-      // Call your delete function here, you may already have this implemented
-      // Example: await deleteArticleByTitle(userId, articleTitle);
-      // console.log(`Article '${articleTitle}' deleted`);
-      // Optionally remove the article from the state as well
       setSavedArticles((prev: any) =>
         prev.filter((article: any) => article.articleTitle !== articleTitle)
       );
@@ -82,7 +84,7 @@ const SavedArticlesList = () => {
   return (
     <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
       <h1 className="text-4xl font-semibold text-center mb-6">
-        Saved Articles
+        {t("savedArticles")}
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {savedArticles.map((article: any, index: number) => (
@@ -105,12 +107,6 @@ const SavedArticlesList = () => {
               <h2 className="card-title text-xl font-bold text-gray-200">
                 {article.articleTitle}
               </h2>
-              {/* <p className="text-sm text-gray-400">
-                Saved on:{" "}
-                {convertTimestampToDate(
-                  article.savedDate.toString()
-                ).toString()}
-              </p> */}
               {isValidUrl(article.articleContent) ? (
                 <div className="card-actions justify-end mt-4">
                   <a
@@ -119,13 +115,13 @@ const SavedArticlesList = () => {
                     rel="noopener noreferrer"
                     className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
                   >
-                    Source
+                    {t("source")}
                   </a>
                 </div>
               ) : (
                 <>
                   <p className="text-sm text-gray-300 mt-2">
-                    {article.articleSummary || "No summary available."}
+                    {article.articleSummary || t("noSummary")}
                   </p>
                   <div className="card-actions justify-end mt-4">
                     <ArticleDownloadButton
@@ -137,7 +133,7 @@ const SavedArticlesList = () => {
                       onClick={() => openModal(article)}
                       className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
                     >
-                      Read More
+                      {t("readMore")}
                     </button>
                   </div>
                 </>

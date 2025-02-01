@@ -5,20 +5,9 @@ import PlayerModal from "./PlayerModal";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useUser } from "../context/UserContext";
-
-// interface Person {
-//   id: number;
-//   fullName: string;
-// }
-
-// interface Status {
-//   description: string;
-// }
-
-// interface Roster {
-//   person: Person;
-//   status: Status;
-// }
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 interface PlayersTableProps {
   players: any[];
@@ -27,10 +16,17 @@ interface PlayersTableProps {
 const PlayersTable = ({ players }: PlayersTableProps) => {
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const { userId, followedPlayers } = useUser();
+  const { userId, followedPlayers, userDetails } = useUser();
   const [filteredPlayers, setFilteredPlayers] = useState<any[]>(players);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFollowedOnly, setIsFollowedOnly] = useState(false);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     filterPlayers();
@@ -104,7 +100,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search players..."
+          placeholder={t("searchPlayers")}
           className="input input-bordered w-full max-w-xs bg-gray-800 text-white placeholder-gray-500"
         />
 
@@ -121,7 +117,7 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
             )}
           </button>
           <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-sm rounded-md py-2 px-4 left-4 top-1/2 transform -translate-y-1/2 ml-4">
-            Show only followed players
+            {t("showOnlyFollowedPlayers")}
           </div>
         </div>
       </div>
@@ -130,8 +126,8 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
         <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Birth Country</th>
+              <th className="px-4 py-2 text-left">{t("name")}</th>
+              <th className="px-4 py-2 text-left">{t("birthCountry")}</th>
             </tr>
           </thead>
           <tbody>

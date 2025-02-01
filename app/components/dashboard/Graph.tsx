@@ -62,24 +62,23 @@ const Graph: React.FC<GraphProps> = ({
   if (!ChartComponent) {
     return (
       <div>
-        <p className="text-red-500">
+        {/* <p className="text-red-500">
           Error: Unsupported chart type "{chartType}". Please use one of:{" "}
           {Object.keys(chartComponents).join(", ")}.
-        </p>
+        </p> */}
       </div>
     );
   }
 
-  // Apply chartOptions.colors to datasets dynamically
   const enhancedData = {
     ...chartData,
     datasets: chartData.datasets.map((dataset: any, index: number) => ({
       ...dataset,
       backgroundColor:
-        chartOptions?.colors?.[index] || dataset.backgroundColor || "#ffffff", // Apply updated colors
+        chartOptions?.colors?.[index] || dataset.backgroundColor || "#ffffff",
       borderColor:
-        chartOptions?.colors?.[index] || dataset.borderColor || "#ffffff", // Apply updated colors
-      borderWidth: 1, // Ensure visible borders
+        chartOptions?.colors?.[index] || dataset.borderColor || "#ffffff",
+      borderWidth: 1,
     })),
   };
 

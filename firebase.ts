@@ -105,7 +105,7 @@ const saveVideo = async (userId: string, videoURL: string, videoName: string, vi
     }
 }
 
-const saveArticle = async (userId: string, article: string, articleTitle: string) => {
+const saveArticle = async (userId: string, article: string, articleTitle: string, savedInDashboard: boolean = false) => {
     if (!userId || !article) return;
 
     const articleSummary = article.substring(0, 200) + "..."; // Preview of the article for summary
@@ -116,11 +116,22 @@ const saveArticle = async (userId: string, article: string, articleTitle: string
         articleContent: article,
         savedDate: new Date(),
         articleSummary,
+        savedInDashboard
       });
 
       //console.log(`Article successfully saved by user ID ${userId}`);
     } catch (error) {
       console.error(`Error saving article: ${error}`);
+    }
+  };
+
+  const updateArticle = async (userId: string, articleId: string, saved: boolean) => {
+    try {
+      const articleRef = doc(collection(db, "users", userId, "savedArticles"), articleId);
+      await updateDoc(articleRef, { saved });
+      // console.log(`Article with ID ${articleId} updated successfully.`);
+    } catch (e: any) {
+      console.error(`Error updating article: ${e.message}`);
     }
   };
 
@@ -382,7 +393,7 @@ const deleteUserDataFromFirestore = async (userId: string) => {
     try {
         const userDocRef = doc(db, "users", userId);
         await deleteDoc(userDocRef);
-        console.log("User data deleted from firestore");
+        // console.log("User data deleted from firestore");
     } catch (error) {
         console.error("Error deleting user data from firestore: " + error);
     }
@@ -483,7 +494,7 @@ const updateUserNotificationPreference = async (
       notificationPreference,
     });
 
-    console.log("Notification preference updated successfully!");
+    // console.log("Notification preference updated successfully!");
   } catch (error) {
     console.error("Error updating notification preference:", error);
   }
@@ -520,7 +531,7 @@ const deleteVideo = async (userId: string, videoURL: string) => {
         await deleteDoc(doc.ref);
       });
   
-      console.log(`Video with URL ${videoURL} deleted successfully.`);
+      // console.log(`Video with URL ${videoURL} deleted successfully.`);
     } catch (error) {
       console.error(`Error deleting video: ${error}`);
     }
@@ -539,7 +550,7 @@ const deleteVideo = async (userId: string, videoURL: string) => {
         await deleteDoc(doc.ref);
       });
   
-      console.log(`Article with title "${articleTitle}" deleted successfully.`);
+      // console.log(`Article with title "${articleTitle}" deleted successfully.`);
     } catch (error) {
       console.error(`Error deleting article: ${error}`);
     }
@@ -549,4 +560,4 @@ const deleteVideo = async (userId: string, videoURL: string) => {
 
 // TODO: Can generate MLB.com link for article or video for specific content piece. Perhaps when you click on a player, can do a query of related content and then ask for link to source.
 // TODO: What are my favorite players? May have to add it to BigQuery too.
-export { deleteArticle, deleteVideo, getUserNotificationPreference, updateUserNotificationPreference, updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };
+export { updateArticle, deleteArticle, deleteVideo, getUserNotificationPreference, updateUserNotificationPreference, updateChartById, deleteChartById, getSavedArticles, saveArticle, auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, followPlayer, unfollowPlayer, getFollowedPlayers, getRandomFollowedPlayer, followTeam, unfollowTeam, getFollowedTeams, setUserInfo, getLoggedInUserDetails, saveVideo, getSavedVideos, updateUserDetails, deleteUserAccount, updateVideo, saveChart, getSavedCharts };

@@ -5,14 +5,25 @@ import TeamModal from "./TeamModal";
 import { useUser } from "../context/UserContext";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
+import { I18nextProvider } from "react-i18next";
 
 const TeamsTable = ({ teams }: { teams: any[] }) => {
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const { userId, followedTeams } = useUser();
+  const { userDetails, followedTeams } = useUser();
   const [filteredTeams, setFilteredTeams] = useState<any[]>(teams);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFollowedOnly, setIsFollowedOnly] = useState(false);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     filterTeams();
@@ -66,7 +77,7 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search teams..."
+          placeholder={t("searchTeams")}
           className="input input-bordered w-full max-w-xs bg-gray-800 text-white placeholder-gray-500"
         />
 
@@ -83,7 +94,7 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
             )}
           </button>
           <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-sm rounded-md py-2 px-4 left-4 top-1/2 transform -translate-y-1/2 ml-4">
-            Show only followed teams
+            {t("showOnlyFollowedTeams")}
           </div>
         </div>
       </div>
@@ -92,28 +103,30 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
         <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Location</th>
-              <th className="px-4 py-2 text-left">League</th>
-              <th className="px-4 py-2 text-left">Status</th>
+              <th className="px-4 py-2 text-left">{t("name")}</th>
+              <th className="px-4 py-2 text-left">{t("location")}</th>
+              <th className="px-4 py-2 text-left">{t("league")}</th>
+              <th className="px-4 py-2 text-left">{t("status")}</th>
             </tr>
           </thead>
-          <tbody>
-            {filteredTeams.map((team) => (
-              <tr
-                key={team.id}
-                onClick={() => showTeamDetails(team)}
-                className="hover:bg-blue-500 cursor-pointer transition duration-200"
-              >
-                <td className="px-4 py-2">{team.name}</td>
-                <td className="px-4 py-2">{team.locationName}</td>
-                <td className="px-4 py-2">{team.league?.name}</td>
-                <td className="px-4 py-2">
-                  {team.active ? "Active" : "Inactive"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+            <tbody>
+              {filteredTeams.map((team) => (
+                <tr
+                  key={team.id}
+                  onClick={() => showTeamDetails(team)}
+                  className="hover:bg-blue-500 cursor-pointer transition duration-200"
+                >
+                  <td className="px-4 py-2">{team.name}</td>
+                  <td className="px-4 py-2">{team.locationName}</td>
+                  <td className="px-4 py-2">{team.league?.name}</td>
+                  <td className="px-4 py-2">
+                    {team.active ? t("active") : t("inactive")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </I18nextProvider>
         </table>
       </div>
 

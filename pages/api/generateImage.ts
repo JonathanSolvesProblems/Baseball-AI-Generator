@@ -22,7 +22,7 @@ const getAccessToken = async (): Promise<string> => {
       throw new Error('Invalid private key format');
     }
   
-    console.log('Environment variables loaded successfully');
+    // console.log('Environment variables loaded successfully');
   
     // Construct the JWT payload
     const now = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -34,12 +34,12 @@ const getAccessToken = async (): Promise<string> => {
       exp: now + 3600, // Expires in 1 hour
     };
   
-    console.log('JWT payload:', payload);
+    // console.log('JWT payload:', payload);
   
     // Sign the JWT
     try {
       const signedJwt = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
-      console.log('Signed JWT created successfully');
+      // console.log('Signed JWT created successfully');
   
       // Exchange the signed JWT for an access token
       const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -68,7 +68,7 @@ const getAccessToken = async (): Promise<string> => {
       }
   
       const { access_token } = await response.json();
-      console.log('Access token retrieved successfully:', access_token);
+      // console.log('Access token retrieved successfully:', access_token);
   
       return access_token;
     } catch (error) {
@@ -83,32 +83,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  console.log('hit1');
 
   const { prompt, sampleCount } = req.body;
 
-  console.log(prompt);
-  console.log(sampleCount);
+  // console.log(prompt);
+  // console.log(sampleCount);
 
   if (!prompt || !sampleCount) {
     res.status(400).json({ error: 'Missing required fields: prompt or sampleCount' });
     return;
   }
 
-  console.log('hit2');
+  // console.log('hit2');
   const location = 'us-central1';
   const modelVersion = 'imagen-3.0-generate-001';
   const apiUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_PROJECT_ID}/locations/${location}/publishers/google/models/${modelVersion}:predict`;
 
   try {
     const accessToken = await getAccessToken();
-    console.log('hit3');
+    // console.log('hit3');
     const requestPayload = {
         instances: [{ prompt }],
         parameters: { sampleCount },
       };
 
-      console.log('Request Payload:', requestPayload);
+      // console.log('Request Payload:', requestPayload);
 
     const response = await fetch(apiUrl, {
       method: 'POST',

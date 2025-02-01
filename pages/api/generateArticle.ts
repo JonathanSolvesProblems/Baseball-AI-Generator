@@ -53,7 +53,6 @@ export default async function handler(
         - Make it engaging and human-readable for a sports fan audience.
         - Ensure that the article is generated in the language ${language}
         - Can you ensure that the article completes with a proper sentence, as in prior tests, I notice that sometimes it would end with an incomplete sentence.
-        - Also I notice that sometimes you generate articles starting with ##. That is not necessary.
       `
     : isTeam
     ? `
@@ -63,7 +62,6 @@ export default async function handler(
         - Make it engaging and human-readable for a sports fan audience.
         - Ensure that the article is generated in the language ${language}
         - Can you ensure that the article completes with a proper sentence, as in prior tests, I notice that sometimes it would end with an incomplete sentence.
-        - Also I notice that sometimes you generate articles starting with ##. That is not necessary.
       `
     : "";
   
@@ -75,7 +73,7 @@ export default async function handler(
       ${structure}
     `;
 
-    console.log(prompt);
+    // console.log(prompt);
 
     const result = await chat.sendMessage(prompt);
     const response = result.response;

@@ -16,7 +16,6 @@ interface VideoPlayerProps {
   loop?: boolean;
 }
 
-// TODO: Make button unsavable if already saved.
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   videoSrc,
   videoName,

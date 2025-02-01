@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import { getHomeRunOfFollowedPlayer, loadCSV } from "@/app/utils/helper";
 import VideoPlayer from "./VideoPlayer";
 import { fetchFollowedPlayers } from "../utils/apiPaths";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
+import { useUser } from "../context/UserContext";
 
-// TODO: If no followed players, take fan favorite.
-// TODO: Can maybe associate homerun with player click?
 const FollowedPlayerHomeRun = ({
   followedPlayers,
 }: {
@@ -15,6 +17,14 @@ const FollowedPlayerHomeRun = ({
   const [homeRunVideos, setHomeRunVideos] = useState<any[]>([]);
   const [videoName, setVideoName] = useState<string>("");
   const [homeRunVideoIndex, setHomeRunVideoIndex] = useState<number>(0);
+  const { userDetails } = useUser();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -81,23 +91,17 @@ const FollowedPlayerHomeRun = ({
         <VideoPlayer
           videoSrc={homeRunVideos[homeRunVideoIndex]}
           videoName={videoName || "Homerun"}
-          width="800" // Optional: Set width
-          height="450" // Optional: Set height
-          controls={true} // Optional: Enable controls
-          autoplay={false} // Optional: Enable autoplay
-          loop={true} // Optional: Enable loop
+          width="800"
+          height="450"
+          controls={true}
+          autoplay={false}
+          loop={true}
         />
       ) : (
-        <p>No home run videos matched with followed players</p>
+        <p>{t("noHomeRunVideoMsg")}</p>
       )}
     </div>
   );
 };
 
 export default FollowedPlayerHomeRun;
-
-/*
-Data Normalization: If you're comparing various statistical features (ExitVelocity, LaunchAngle, etc.), consider normalizing the data before passing it to the AI model (e.g., scaling values to a range from 0 to 1). This helps avoid skewing results when comparing different magnitudes.
-Incorporating More Stats: In the future, you can enhance the recommendation system by including additional stats like batting average, home runs, and other advanced metrics that could improve the quality of the similarity results.
-Iterative Testing: Experiment with different formats and types of prompts to understand which combinations of attributes work best for the Gemini model.
-*/

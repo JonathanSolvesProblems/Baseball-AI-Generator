@@ -5,6 +5,9 @@ import AuthModal from "../auth/AuthModal";
 import { getTeamLogo } from "../utils/apiPaths";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 interface TeamModalProps {
   team: any;
@@ -15,7 +18,14 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
   const [isFollowing, setIsFollowing] = useState<boolean | undefined>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const router = useRouter();
-  const { userId } = useUser();
+  const { userId, userDetails } = useUser();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     const fetchFollowedTeams = async () => {
@@ -78,16 +88,16 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
             <h2 className="text-3xl font-semibold text-white">{team.name}</h2>
             <div className="w-full space-y-3 text-left text-gray-300">
               <p>
-                <strong>Location:</strong> {team.locationName}
+                <strong>{t("location")}:</strong> {team.locationName}
               </p>
               <p>
-                <strong>League:</strong> {team.league.name}
+                <strong>{t("league")}:</strong> {team.league.name}
               </p>
               <p>
-                <strong>First Year of Play:</strong> {team.firstYearOfPlay}
+                <strong>{t("firstYearOfPlay")}:</strong> {team.firstYearOfPlay}
               </p>
               <p>
-                <strong>Active:</strong> {team.active ? "Yes" : "No"}
+                <strong>{t("active")}:</strong> {team.active ? "Yes" : "No"}
               </p>
             </div>
 
@@ -95,7 +105,7 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
               onClick={toggleFollow}
               className="w-full py-3 mt-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg transform transition duration-300 ease-in-out"
             >
-              {isFollowing ? "Unfollow" : "Follow"} {team.teamName}
+              {isFollowing ? t("unfollow") : t("follow")} {team.teamName}
             </button>
 
             {isFollowing && (
@@ -103,7 +113,7 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
                 onClick={handleSearchRelatedContent}
                 className="w-full py-3 mt-4 bg-gray-700 text-white rounded-full hover:bg-gray-600 shadow-lg transform transition duration-300 ease-in-out"
               >
-                Search Related Content
+                {t("searchRelatedContent")}
               </button>
             )}
           </div>

@@ -1,7 +1,6 @@
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth, setUserInfo } from '@/firebase';
 
-// cross origin error to investigate, i see it in firebase console too.
 const signInWithGoogle = async () => {
     try {
         const provider = new GoogleAuthProvider();
@@ -17,7 +16,7 @@ const signInWithGoogle = async () => {
 
         await setUserInfo(user, firstName, lastName, language);
 
-        // Redirect or store user details in your app
+   
     } catch (error) {
         console.error('Error signing in with Google:', error);
     }

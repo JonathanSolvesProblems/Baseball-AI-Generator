@@ -23,7 +23,7 @@ const ResizableDraggableWindow: React.FC<ResizableDraggableWindowProps> = ({
   const windowRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
-  const sectionRef = useRef<HTMLDivElement | null>(null); // Reference to the parent section.
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch data
   const fetchData = async () => {

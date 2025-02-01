@@ -16,6 +16,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import PublishIcon from "@mui/icons-material/Publish";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { useRouter } from "next/navigation";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 const Profile = ({
   setIsModalOpen,
@@ -40,6 +43,13 @@ const Profile = ({
   );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [subscribed, setSubscribed] = useState<boolean>(true);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +108,7 @@ const Profile = ({
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      console.log("User signed out successfully");
+      // console.log("User signed out successfully");
       router.push("/");
       setIsModalOpen(false);
     } catch (error) {
@@ -122,7 +132,6 @@ const Profile = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-[#0a0a0a] text-gray-200 rounded-lg shadow-lg w-full max-w-md relative p-6">
-        {/* Close Icon */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-200"
           onClick={() => setIsModalOpen(false)}
@@ -130,13 +139,11 @@ const Profile = ({
           <CloseIcon fontSize="large" />
         </button>
 
-        {/* Profile Heading */}
         <h2 className="text-2xl font-semibold text-center mb-6 flex items-center justify-center gap-2">
           <AccountBoxIcon fontSize="large" />
-          Profile
+          {t("profile")}
         </h2>
 
-        {/* Tabs */}
         <div className="flex justify-center gap-4 mb-6">
           <button
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
@@ -146,7 +153,7 @@ const Profile = ({
             }`}
             onClick={() => setActiveTab("accountSettings")}
           >
-            Account Settings
+            {t("accountSettings")}
           </button>
           <button
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
@@ -156,17 +163,17 @@ const Profile = ({
             }`}
             onClick={() => setActiveTab("notificationPreferences")}
           >
-            Notification Preferences
+            {t("notificationPreferences")}
           </button>
         </div>
 
-        {/* Account Settings Tab */}
         {activeTab === "accountSettings" && (
           <>
-            {/* First Name Input */}
             <div className="form-control">
               <label htmlFor="firstName" className="label">
-                <span className="label-text text-gray-400">First Name</span>
+                <span className="label-text text-gray-400">
+                  {t("firstName")}
+                </span>
               </label>
               <input
                 id="firstName"
@@ -177,10 +184,11 @@ const Profile = ({
               />
             </div>
 
-            {/* Last Name Input */}
             <div className="form-control mt-4">
               <label htmlFor="lastName" className="label">
-                <span className="label-text text-gray-400">Last Name</span>
+                <span className="label-text text-gray-400">
+                  {t("lastName")}
+                </span>
               </label>
               <input
                 id="lastName"
@@ -191,11 +199,10 @@ const Profile = ({
               />
             </div>
 
-            {/* Preferred Language Dropdown */}
             <div className="form-control mt-4">
               <label htmlFor="language" className="label">
                 <span className="label-text text-gray-400">
-                  Preferred Language
+                  {t("preferredLanguage")}
                 </span>
               </label>
               <select
@@ -204,13 +211,12 @@ const Profile = ({
                 onChange={(e) => setLanguage(e.target.value)}
                 className="select select-bordered w-full bg-gray-800 text-gray-200"
               >
-                <option value="English">English</option>
-                <option value="Spanish">Spanish</option>
-                <option value="Japanese">Japanese</option>
+                <option value="English">{t("english")}</option>
+                <option value="Spanish">{t("spanish")}</option>
+                <option value="Japanese">{t("japanese")}</option>
               </select>
             </div>
 
-            {/* Submit Button */}
             <div className="form-control mt-6">
               <button
                 type="button"
@@ -218,11 +224,10 @@ const Profile = ({
                 className="btn btn-primary w-full flex items-center justify-center gap-2"
               >
                 <PublishIcon />
-                Submit
+                {t("submit")}
               </button>
             </div>
 
-            {/* Sign Out Button */}
             <div className="form-control mt-4">
               <button
                 type="button"
@@ -230,11 +235,10 @@ const Profile = ({
                 className="btn btn-secondary w-full flex items-center justify-center gap-2"
               >
                 <LogoutIcon />
-                Sign Out
+                {t("signOut")}
               </button>
             </div>
 
-            {/* Delete Account Button */}
             <div className="form-control mt-4">
               <button
                 type="button"
@@ -242,20 +246,19 @@ const Profile = ({
                 className="btn btn-error w-full flex items-center justify-center gap-2"
               >
                 <DeleteForeverIcon />
-                Delete Account
+                {t("deleteAccount")}
               </button>
             </div>
           </>
         )}
 
-        {/* Notification Preferences Tab */}
         {activeTab === "notificationPreferences" && (
           <>
             <div className="form-control">
               <div className="form-control flex flex-col items-center justify-center">
                 <label className="label cursor-pointer flex items-center gap-4">
                   <span className="label-text text-gray-400">
-                    Receive Notifications
+                    {t("receiveNotifications")}
                   </span>
                   <input
                     type="checkbox"
@@ -268,7 +271,9 @@ const Profile = ({
             </div>
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-gray-400">Frequency</span>
+                <span className="label-text text-gray-400">
+                  {t("frequency")}
+                </span>
               </label>
               <select
                 value={frequency}
@@ -278,16 +283,16 @@ const Profile = ({
                 className="select select-bordered w-full bg-gray-800 text-gray-200"
                 disabled={!subscribed}
               >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
+                <option value="daily">{t("daily")}</option>
+                <option value="weekly">{t("weekly")}</option>
+                <option value="monthly">{t("monthly")}</option>
               </select>
             </div>
             {frequency === "weekly" && subscribed && (
               <div className="form-control mt-4">
                 <label className="label">
                   <span className="label-text text-gray-400">
-                    Day of the Week
+                    {t("dayOfWeek")}
                   </span>
                 </label>
                 <select
@@ -295,13 +300,13 @@ const Profile = ({
                   onChange={(e) => setDayOfWeek(e.target.value)}
                   className="select select-bordered w-full bg-gray-800 text-gray-200"
                 >
-                  <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
-                  <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                  <option value="Saturday">Saturday</option>
-                  <option value="Sunday">Sunday</option>
+                  <option value="Monday">{t("monday")}</option>
+                  <option value="Tuesday">{t("tuesday")}</option>
+                  <option value="Wednesday">{t("wednesday")}</option>
+                  <option value="Thursday">{t("thursday")}</option>
+                  <option value="Friday">{t("friday")}</option>
+                  <option value="Saturday">{t("saturday")}</option>
+                  <option value="Sunday">{t("sunday")}</option>
                 </select>
               </div>
             )}
@@ -309,7 +314,7 @@ const Profile = ({
               <div className="form-control mt-4">
                 <label className="label">
                   <span className="label-text text-gray-400">
-                    Day of the Month
+                    {t("dayOfMonth")}
                   </span>
                 </label>
                 <input
@@ -329,7 +334,7 @@ const Profile = ({
                 className="btn btn-primary w-full flex items-center justify-center gap-2"
               >
                 <PublishIcon />
-                Submit
+                {t("submit")}
               </button>
             </div>
           </>

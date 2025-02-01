@@ -115,8 +115,6 @@ const FollowedPlayersDashboardVisualize = () => {
     scales: {
       y: {
         beginAtZero: true,
-        // Add scale type if necessary, like:
-        // type: 'linear',
       },
     },
     plugins: {
@@ -140,7 +138,6 @@ const FollowedPlayersDashboardVisualize = () => {
         Your Followed Players
       </h2>
 
-      {/* Display the chart */}
       {playerDetails.length > 0 ? (
         <div className="p-4 shadow-lg rounded-lg bg-white">
           <Graph

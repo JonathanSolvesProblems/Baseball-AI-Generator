@@ -257,13 +257,13 @@ const generateArticleText = async (
   try {
     const result = await askSQLQuestion(prompt); // Returns plain text response
     const cleanedSQL = parseSQL(JSON.parse(result).res); // Extract the clean SQL query
-    console.log(`SQL query generated: ${cleanedSQL}`);
+    // console.log(`SQL query generated: ${cleanedSQL}`);
 
     const data = await sendSQLQuerytoBigQuery(cleanedSQL);
-    console.log(`Query results: ${JSON.stringify(data)}`);
+    // console.log(`Query results: ${JSON.stringify(data)}`);
 
     const articleText = await generatePersonalizedArticle(data.data, language);
-    console.log("Generated article:", articleText);
+    // console.log("Generated article:", articleText);
 
     const articleTitle = articleText.split("\n")[0] || "Personalized Article";
 
@@ -273,25 +273,3 @@ const generateArticleText = async (
     return null;
   }
 };
-
-
-// const saveArticle = async (userId: string, article: string, articleTitle: string) => {
-//   try {
-//     const response = await fetch(`${domain}/api/saveArticle`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ userId, article, articleTitle }),
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`Error: ${response.statusText}`);
-//     }
-
-//     const data = await response.json();
-//     console.log(data.message); // "Article saved successfully!"
-//   } catch (error) {
-//     console.error('Failed to save article:', error);
-//   }
-// };

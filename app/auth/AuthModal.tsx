@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
 import signInWithGoogle from "./SignInWithGoogle";
@@ -38,9 +38,8 @@ const AuthModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
       <div className="bg-[#0a0a0a] text-gray-200 rounded-lg shadow-lg w-full max-w-md relative p-6">
-        {/* Close Icon */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-200"
           onClick={() => setIsModalOpen(false)}
@@ -48,9 +47,7 @@ const AuthModal = ({
           <CloseIcon fontSize="large" />
         </button>
 
-        {/* Modal Content */}
         <div className="mt-16 space-y-6">
-          {/* Buttons Layout */}
           {currentForm === "none" && (
             <div className="flex justify-around items-center">
               <button
@@ -78,23 +75,16 @@ const AuthModal = ({
             </div>
           )}
 
-          {/* Login Form */}
           {currentForm === "login" && (
-            <div>
-              <SignInForm setIsModalOpen={setIsModalOpen} />
-            </div>
+            <SignInForm setIsModalOpen={setIsModalOpen} />
           )}
 
-          {/* Sign Up Form */}
           {currentForm === "signup" && (
-            <div>
-              <SignUpForm setIsModalOpen={setIsModalOpen} />
-            </div>
+            <SignUpForm setIsModalOpen={setIsModalOpen} />
           )}
 
-          {/* Error Message */}
           {error && (
-            <div className="alert alert-error text-sm">
+            <div className="alert alert-error bg-red-700 text-white p-4 rounded-lg mt-4">
               <div>
                 <span>{error}</span>
               </div>

@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArticleDownloadButton from "../components/ArticleDownloadButton";
 import MinimizeIcon from "@mui/icons-material/Minimize";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
+import { useUser } from "../context/UserContext";
 
-// TODO: If lang switches, will want to disable to button and such, maybe a new button to regenerate translation?
 interface ArticleModalProps {
   articleTitle: string;
   articleContent: string;
@@ -16,7 +19,15 @@ const ArticleModal = ({
   articleContent,
   closeModal,
 }: ArticleModalProps) => {
+  const { userDetails } = useUser();
   const [language, setLanguage] = useState("en");
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   // Function to handle language change
   const handleLanguageChange = (
@@ -51,7 +62,7 @@ const ArticleModal = ({
             htmlFor="language"
             className="text-sm font-medium text-gray-400"
           >
-            Select Language:
+            {t("selectLanguage")}:
           </label>
           <select
             id="language"
@@ -59,9 +70,9 @@ const ArticleModal = ({
             onChange={handleLanguageChange}
             className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="ja">Japanese</option>
+            <option value="en">{t("english")}</option>
+            <option value="es">{t("spanish")}</option>
+            <option value="ja">{t("japanese")}</option>
           </select>
           <div className="mt-4">
             <ArticleDownloadButton

@@ -6,19 +6,29 @@ import AuthModal from "../auth/AuthModal";
 import { getPlayerHeadshot } from "../utils/apiPaths";
 import { getFanContentInteractionDataFromTeamOrPlayer } from "../utils/bigQuery";
 import { useRouter } from "next/navigation";
-import WarningIcon from "@mui/icons-material/Warning";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
+import { useUser } from "../context/UserContext";
 
 interface PlayerModalProps {
   player: PlayerDetails;
   onClose: () => void;
   userId: any;
 }
-// Expand your user profile to include additional data, like the teams and players a user is following, and make sure the user’s preferences are updated accordingly in Firestore.
+
 const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
   const [isFollowing, setIsFollowing] = useState<boolean | undefined>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation();
+  const { userDetails } = useUser();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   useEffect(() => {
     const fetchFollowedPlayers = async () => {
@@ -86,25 +96,26 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
             </h2>
             <div className="w-full space-y-3 text-left text-gray-300">
               <p>
-                <strong>Birth City:</strong> {player.birthCity}
+                <strong>{t("birthCity")}</strong> {player.birthCity}
               </p>
               <p>
-                <strong>Birth Country:</strong> {player.birthCountry}
+                <strong>{t("birthCountry")}:</strong> {player.birthCountry}
               </p>
               <p>
-                <strong>Height:</strong> {player.height}
+                <strong>{t("height")}:</strong> {player.height}
               </p>
               <p>
-                <strong>Weight:</strong> {player.weight}
+                <strong>{t("weight")}:</strong> {player.weight}
               </p>
               <p>
-                <strong>Primary Position:</strong> {player.primaryPosition}
+                <strong>{t("primaryPosition")}:</strong>{" "}
+                {player.primaryPosition}
               </p>
               <p>
-                <strong>Age:</strong> {player.currentAge}
+                <strong>{t("age")}:</strong> {player.currentAge}
               </p>
               <p>
-                <strong>MLB Debut:</strong> {player.mlbDebutDate}
+                <strong>{t("mlbDebut")}:</strong> {player.mlbDebutDate}
               </p>
             </div>
 
@@ -112,7 +123,7 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
               onClick={toggleFollow}
               className="w-full py-3 mt-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg transform transition duration-300 ease-in-out"
             >
-              {isFollowing ? "Unfollow" : "Follow"} {player.fullName}
+              {isFollowing ? t("unfollow") : t("follow")} {player.fullName}
             </button>
 
             {isFollowing && (
@@ -120,7 +131,7 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
                 onClick={handleSearchRelatedContent}
                 className="w-full py-3 mt-4 bg-gray-700 text-white rounded-full hover:bg-gray-600 shadow-lg transform transition duration-300 ease-in-out"
               >
-                Search Related Content
+                {t("searchRelatedContent")}
               </button>
             )}
           </div>

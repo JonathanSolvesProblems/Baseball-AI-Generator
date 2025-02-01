@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         try {
             const thisUrl = mlbCaptionsBaseUrl.replace("*", i.toString().padStart(12, '0'));
-            console.log('processing query ' + thisUrl);
+            // console.log('processing query ' + thisUrl);
             const thisDf = await loadNewlineDelimitedJson(thisUrl);
 
             if (thisDf) {
