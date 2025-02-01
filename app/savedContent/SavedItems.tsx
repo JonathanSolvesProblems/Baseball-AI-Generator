@@ -20,6 +20,18 @@ const SavedItems = () => {
     }
   }, [userDetails?.language]);
 
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save active tab in localStorage when it changes
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
   return (
     <div className="p-6 bg-[#0a0a0a] min-h-screen text-gray-200">
       <div className="flex flex-col items-center">

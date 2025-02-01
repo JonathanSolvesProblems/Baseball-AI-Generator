@@ -101,6 +101,11 @@ const translations = {
       savedVideos: "Saved Videos",
       savedVideosLoginMsg: "Please log in to view your saved videos.",
       videos: "Videos",
+      generating: "Generating...",
+      generateOne: "Generate One?",
+      watchVideo: "Watch Video",
+      noSummaryInLang: "No summary available in your preferred language",
+      loadingVideos: "Loading Videos...",
     },
     es: {
       profile: "Perfil",
@@ -204,6 +209,11 @@ const translations = {
       savedVideos: "Vídeos guardados",
       savedVideosLoginMsg: "Inicia sesión para ver tus vídeos guardados.",
       videos: "Vídeos",
+      generating: "Generar...",
+      generateOne: "¿Generar uno?",
+      watchVideo: "Ver el vídeo",
+      noSummaryInLang: "No hay resumen disponible en su idioma preferido",
+      loadingVideos: "Cargando vídeos...",
     },
     ja: {
       profile: "プロフィール",
@@ -307,6 +317,11 @@ const translations = {
       savedVideos: "保存されたビデオ",
       savedVideosLoginMsg: "保存したビデオを見るにはログインしてください。",
       videos: "ビデオ",
+      generating: "生成...",
+      generateOne: "1つ作る？",
+      watchVideo: "ビデオを見る",
+      noSummaryInLang: "ご希望の言語での要約がありません",
+      loadingVideos: "ビデオをロード中...",
     },
   };
 
