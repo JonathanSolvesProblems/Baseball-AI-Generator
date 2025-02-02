@@ -52,7 +52,7 @@ const getAnswerFromGemini = async (prompt: string) => {
 const analyzeVideoWithAudio = async (videoUrl: string, videoName: string, language: string = "English") => {
     try {
       const res = await fetch(`/api/getVideoSummary?videoUrl=${encodeURIComponent(videoUrl)}&language=${encodeURIComponent(language)}&videoName=${encodeURIComponent(videoName)}`);
-        //console.log(res);
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -110,17 +110,14 @@ const askSQLQuestion = async(query: string) => {
 
 const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
     try { 
-      // Sending rawData to the server-side API
       const res = await fetch(`/api/generateArticle?rawData=${encodeURIComponent(JSON.stringify(rawData))}&language=${encodeURIComponent(language)}`);
   
-      // Checking if the response is OK and returning the generated article
       if (!res.ok) {
         throw new Error('Failed to fetch the personalized article');
       }
   
       const data = await res.json();
   
-      // Assuming the article is in the "article" key
       return data.article;
     } catch (error: any) {
       const errorMessage = `An error occurred in the generatePersonalizedArticle step: ${error.message}`;
@@ -130,5 +127,25 @@ const generatePersonalizedArticle = async (rawData: any, language: string = 'Eng
   }
   
 
+  
+const translateText = async (text: string, language: string = 'English') => {
+    try { 
+      const res = await fetch(`/api/translateText?text=${encodeURIComponent(text)}&language=${encodeURIComponent(language)}`);
+  
+      if (!res.ok) {
+        throw new Error('Failed to fetch the personalized article');
+      }
+  
+      const data = await res.json();
+  
+      return data.translatedText;
+    } catch (error: any) {
+      const errorMessage = `An error occurred in the generatePersonalizedArticle step: ${error.message}`;
+      console.error(errorMessage);
+      return errorMessage;
+    }
+  }
+  
 
-export { getAnswerFromGemini, analyzeVideoWithAudio, getVertexProjectId, getGeminiKey, askSQLQuestion, generatePersonalizedArticle };
+
+export { translateText, getAnswerFromGemini, analyzeVideoWithAudio, getVertexProjectId, getGeminiKey, askSQLQuestion, generatePersonalizedArticle };

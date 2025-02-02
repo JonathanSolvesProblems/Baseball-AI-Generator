@@ -106,6 +106,9 @@ const translations = {
       watchVideo: "Watch Video",
       noSummaryInLang: "No summary available in your preferred language",
       loadingVideos: "Loading Videos...",
+      unSupportedVideoTag: "Your browser does not support the video tag.",
+      translating: "Translating...",
+      translate: "Translate",
     },
     es: {
       profile: "Perfil",
@@ -214,6 +217,9 @@ const translations = {
       watchVideo: "Ver el vídeo",
       noSummaryInLang: "No hay resumen disponible en su idioma preferido",
       loadingVideos: "Cargando vídeos...",
+      unSupportedVideoTag: "Su navegador no soporta la etiqueta de vídeo.",
+      translating: "Traducir...",
+      translate: "Traducir",
     },
     ja: {
       profile: "プロフィール",
@@ -322,6 +328,9 @@ const translations = {
       watchVideo: "ビデオを見る",
       noSummaryInLang: "ご希望の言語での要約がありません",
       loadingVideos: "ビデオをロード中...",
+      unSupportedVideoTag: "お使いのブラウザはビデオタグをサポートしていません。",
+      translating: "翻訳...",
+      translate: "翻訳する",
     },
   };
 

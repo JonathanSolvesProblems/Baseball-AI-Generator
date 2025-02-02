@@ -8,9 +8,13 @@ import i18n from "@/i18n";
 const ArticleDownloadButton = ({
   articleContent,
   articleTitle,
+  loading = false,
+  downloadLanguage = "English",
 }: {
   articleContent: string;
   articleTitle: string;
+  loading?: boolean;
+  downloadLanguage?: string;
 }) => {
   const { userDetails } = useUser();
 
@@ -24,10 +28,17 @@ const ArticleDownloadButton = ({
 
   return (
     <button
-      onClick={() => downloadPDF(articleContent, articleTitle)}
-      className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+      onClick={() =>
+        downloadPDF(articleContent, articleTitle, downloadLanguage)
+      }
+      className={`${
+        loading
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-blue-700 hover:bg-blue-600"
+      } text-white font-semibold py-2 px-4 rounded-lg transition duration-200`}
+      disabled={loading}
     >
-      {t("downloadPDF")}
+      {loading ? t("translating") : t("downloadPDF")}
     </button>
   );
 };

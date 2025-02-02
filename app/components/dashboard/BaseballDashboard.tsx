@@ -279,7 +279,7 @@ const BaseballDashboard = () => {
                   <h3 className="text-lg font-bold">{item.videoName}</h3>
                   <video className="w-full rounded-lg" controls>
                     <source src={item.videoUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
+                    {t("unSupportedVideoTag")}
                   </video>
                 </div>
               )}

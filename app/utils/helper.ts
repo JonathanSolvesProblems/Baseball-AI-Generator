@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 import { PlayerStats } from './schemas';
 import jsPDF from "jspdf";
+import { translateText } from './geminiCalls';
 
 const parseCSV = (csvData: any) => {
     return new Promise((resolve, reject) => {
@@ -134,29 +135,80 @@ const parseSQL = (text: string): string => {
       .trim(); // Remove leading/trailing spaces
   };
 
-const downloadPDF = (article: string, articleName: string) => {
+  const downloadPDF = async (article: string, articleName: string, language: string = "English") => {
     const doc = new jsPDF();
+  
     doc.setFontSize(12);
-
-    // Set title to the first line of the article
+  
+    if (language === "Japanese") {
+      try {
+        const response = await fetch("/japaneseFont.txt");
+        const fontData = await response.text(); 
+  
+        if (!fontData) {
+          throw new Error("Font data is empty.");
+        }
+  
+        doc.addFileToVFS("noto-sans-jp.ttf", fontData);  
+        doc.addFont("noto-sans-jp.ttf", "noto-sans-jp", "normal");
+        doc.setFont("noto-sans-jp"); 
+      } catch (error) {
+        console.error("Error loading font:", error);
+        alert("Failed to load the font. Please check the file.");
+        return; 
+      }
+    } else {
+      doc.setFont("helvetica");
+    }
+  
     const articleLines = article.split("\n");
-    const title = articleLines[0] || "Personalized Article"; // Default title if no article
 
-    // Add the title as the header of the PDF
-    doc.setFontSize(16);
-    doc.text(title, 10, 10);
-
-    // Set the content of the article and ensure it fits within the page
+    let title = "";
+    if (language === "English") title = "Personalized Article";
+    else if (language === "Spanish") title = "Artículo personalizado"
+    else if (language === "Japanese") title = "パーソナライズされた記事";
+  
+    const maxWidth = 180; 
+    const pageHeight = doc.internal.pageSize.height; 
+  
+    const wrappedTitle = doc.splitTextToSize(title, maxWidth);
+  
+    let yPosition = 10; 
+    wrappedTitle.forEach((line: any, index: number) => {
+      doc.setFontSize(16); 
+      doc.text(line, 10, yPosition);
+      yPosition += 10; 
+    });
+  
     doc.setFontSize(12);
-    doc.text(article, 10, 20, { maxWidth: 180 }); // Adjust maxWidth to fit text
-
+  
+    const textContent = articleLines.slice(1).join("\n"); 
+    const wrappedText = doc.splitTextToSize(textContent, maxWidth);
+  
+    wrappedText.forEach((line: any, index: number) => {
+      if (yPosition + 10 > pageHeight - 10) {
+        doc.addPage(); 
+        yPosition = 10; 
+      }
+      doc.text(line, 10, yPosition);
+      yPosition += 10; 
+    });
+  
     doc.save(`${articleName}.pdf`);
-};
+  };
+  
+  const dynamicTranslateText = async(text: string, language: string = "English") => {
+    if (language === "English") return;
 
+    const translatedText = await translateText(text, language);
+
+    return translatedText;
+  }
+  
 // Function to check if a string is a valid URL
 const isValidUrl = (str: string) => {
   const pattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/;
   return pattern.test(str);
 };
 
-export { isValidUrl, downloadPDF, parseSQL, parseCSV, loadCSV, calculateSimilarity, extractPlayerName, combinePlayerData, findTopSimilarPlayers, getHomeRunOfFollowedPlayer, convertTimestampToDate }
+export { dynamicTranslateText, isValidUrl, downloadPDF, parseSQL, parseCSV, loadCSV, calculateSimilarity, extractPlayerName, combinePlayerData, findTopSimilarPlayers, getHomeRunOfFollowedPlayer, convertTimestampToDate }

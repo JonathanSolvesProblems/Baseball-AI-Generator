@@ -70,27 +70,27 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 max-w-screen-xl mx-auto">
       {/* Search bar and Followed teams toggle */}
-      <div className="flex items-center mb-4 space-x-4">
+      <div className="flex items-center mb-4 space-x-4 flex-wrap">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t("searchTeams")}
-          className="input input-bordered w-full max-w-xs bg-gray-800 text-white placeholder-gray-500"
+          className="input input-bordered w-full sm:max-w-xs bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {/* Tooltip and Toggle Followed Teams Only */}
         <div className="relative inline-flex items-center group">
           <button
             onClick={toggleFollowedFilter}
-            className="p-2 bg-gray-800 text-white rounded-full hover:bg-blue-600"
+            className="p-2 bg-gray-700 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {isFollowedOnly ? (
               <FavoriteIcon className="text-yellow-500" />
             ) : (
-              <FavoriteBorderIcon className="text-gray-500" />
+              <FavoriteBorderIcon className="text-gray-400" />
             )}
           </button>
           <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-sm rounded-md py-2 px-4 left-4 top-1/2 transform -translate-y-1/2 ml-4">
@@ -99,7 +99,7 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
+      <div className="overflow-x-auto bg-gray-900 shadow-lg rounded-lg">
         <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
@@ -115,12 +115,12 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
                 <tr
                   key={team.id}
                   onClick={() => showTeamDetails(team)}
-                  className="hover:bg-blue-500 cursor-pointer transition duration-200"
+                  className="hover:bg-blue-600 cursor-pointer transition duration-200"
                 >
-                  <td className="px-4 py-2">{team.name}</td>
-                  <td className="px-4 py-2">{team.locationName}</td>
-                  <td className="px-4 py-2">{team.league?.name}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-white">{team.name}</td>
+                  <td className="px-4 py-2 text-white">{team.locationName}</td>
+                  <td className="px-4 py-2 text-white">{team.league?.name}</td>
+                  <td className="px-4 py-2 text-white">
                     {team.active ? t("active") : t("inactive")}
                   </td>
                 </tr>
@@ -132,7 +132,9 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
 
       {showModal && selectedTeam && (
         <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50">
-          <TeamModal team={selectedTeam} onClose={closeModal} />
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+            <TeamModal team={selectedTeam} onClose={closeModal} />
+          </div>
         </div>
       )}
     </div>

@@ -200,10 +200,7 @@ const getSavedCharts = async (userId: string): Promise<ISavedChart[]> => {
     }
 };
 
-/*
-D:\Hackathons\Google…hon\firebase.ts:188 
- Error updating video: FirebaseError: [code=invalid-argument]: Function updateDoc() called with invalid data. Unsupported field value: undefined (found in field videoSummary.Japanese in document users/iHdaHkzJ0ccgNerMV5c5altHdht2/savedVideos/TtEakvjMI6lyMTpsuaWv)
-*/
+
 const updateVideo = async (
   userId: string,
   videoId: string, 

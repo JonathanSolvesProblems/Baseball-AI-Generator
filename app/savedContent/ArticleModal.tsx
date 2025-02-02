@@ -7,6 +7,7 @@ import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
 import { useUser } from "../context/UserContext";
+import { translateText } from "../utils/geminiCalls";
 
 interface ArticleModalProps {
   articleTitle: string;
@@ -20,7 +21,10 @@ const ArticleModal = ({
   closeModal,
 }: ArticleModalProps) => {
   const { userDetails } = useUser();
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState("English");
+  const [translatedTitle, setTranslatedTitle] = useState(articleTitle);
+  const [translatedContent, setTranslatedContent] = useState(articleContent);
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -29,7 +33,35 @@ const ArticleModal = ({
     }
   }, [userDetails?.language]);
 
-  // Function to handle language change
+  useEffect(() => {
+    const translateIfNeeded = async () => {
+      if (
+        language !== "English" &&
+        (language === "Spanish" || language === "Japanese")
+      ) {
+        setLoading(true);
+        try {
+          const translatedTitle = await translateText(articleTitle, language);
+          const translatedContent = await translateText(
+            articleContent,
+            language
+          );
+          setTranslatedTitle(translatedTitle);
+          setTranslatedContent(translatedContent);
+        } catch (error) {
+          console.error("Translation error:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setTranslatedTitle(articleTitle);
+        setTranslatedContent(articleContent);
+      }
+    };
+
+    translateIfNeeded();
+  }, [language, articleTitle, articleContent]);
+
   const handleLanguageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -70,15 +102,22 @@ const ArticleModal = ({
             onChange={handleLanguageChange}
             className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="en">{t("english")}</option>
-            <option value="es">{t("spanish")}</option>
-            <option value="ja">{t("japanese")}</option>
+            <option value="English">{t("english")}</option>
+            <option value="Spanish">{t("spanish")}</option>
+            <option value="Japanese">{t("japanese")}</option>
           </select>
           <div className="mt-4">
             <ArticleDownloadButton
-              articleContent={articleContent}
-              articleTitle={articleTitle}
+              articleContent={translatedContent}
+              articleTitle={translatedTitle}
+              loading={loading}
+              downloadLanguage={language}
             />
+            {loading && (
+              <div className="text-sm text-gray-400 mt-2">
+                {t("translating")}...
+              </div>
+            )}
           </div>
         </div>
       </div>

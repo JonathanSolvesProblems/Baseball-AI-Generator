@@ -1,5 +1,4 @@
 "use client";
-
 import Header from "@/app/components/Header";
 import { useSearchParams } from "next/navigation";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -19,6 +18,7 @@ import { getFanContentInteractionDataFromTeamOrPlayer } from "@/app/utils/bigQue
 import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
+import { translateText } from "@/app/utils/geminiCalls";
 
 const PlayerRelatedContent = () => {
   const searchParams = useSearchParams();
@@ -44,10 +44,12 @@ const PlayerRelatedContent = () => {
 
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
   const [savedStates, setSavedStates] = useState<boolean[]>([]);
-  const [homerunData, setHomerunData] = useState<any[]>([]); // State for homerun data
-  const [isContentLoading, setIsContentLoading] = useState(true); // State to track content loading
+  const [homerunData, setHomerunData] = useState<any[]>([]);
+  const [isContentLoading, setIsContentLoading] = useState(true);
+  const [translatedHeadlines, setTranslatedHeadlines] = useState<{
+    [key: number]: string;
+  }>({});
 
-  // Fetch related content based on playerId
   useEffect(() => {
     const fetchRelatedContent = async () => {
       if (!playerId) return;
@@ -70,7 +72,6 @@ const PlayerRelatedContent = () => {
     fetchRelatedContent();
   }, [playerId]);
 
-  // Update save states based on user's saved content
   useEffect(() => {
     if (loading || !relatedContent.length) return;
 
@@ -102,7 +103,6 @@ const PlayerRelatedContent = () => {
         getSavedVideos(userId, userDetails.language),
         getSavedArticles(userId),
       ]);
-
       if (videos) setSavedVideos(videos);
       setSavedArticles(articles);
     } catch (error) {
@@ -114,6 +114,7 @@ const PlayerRelatedContent = () => {
     if (!userId || (!userDetails && !userDetails.language)) return;
     const row = relatedContent[index];
     const updatedSavedStates = [...savedStates];
+    const headlineToSave = translatedHeadlines[index] || row.Headline;
 
     try {
       if (savedStates[index]) {
@@ -127,12 +128,12 @@ const PlayerRelatedContent = () => {
           await saveVideo(
             userId,
             row.source,
-            row.Headline,
+            headlineToSave,
             row.videoSummary,
             userDetails.language
           );
         } else {
-          await saveArticle(userId, row.source, row.Headline);
+          await saveArticle(userId, row.source, headlineToSave);
         }
       }
 
@@ -141,6 +142,20 @@ const PlayerRelatedContent = () => {
       setSavedStates(updatedSavedStates);
     } catch (error) {
       console.error("Error saving or deleting content:", error);
+    }
+  };
+
+  // Function to handle translation of the headline
+  const handleTranslate = async (index: number, headline: string) => {
+    if (userDetails.language !== "English") {
+      const translatedHeadline = await translateText(
+        headline,
+        userDetails.language
+      );
+      setTranslatedHeadlines((prev) => ({
+        ...prev,
+        [index]: translatedHeadline,
+      }));
     }
   };
 
@@ -155,12 +170,12 @@ const PlayerRelatedContent = () => {
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-screen-xl">
         <h1 className="text-2xl font-bold text-white mb-4">
           {t("foundRelatedContentFor")} {playerName}
         </h1>
 
-        <div className="overflow-x-auto bg-black shadow-lg rounded-lg">
+        <div className="overflow-x-auto bg-gray-900 shadow-lg rounded-lg">
           <table className="table w-full table-auto border-separate border-spacing-0 rounded-lg">
             <thead className="bg-gray-800 text-white">
               <tr>
@@ -168,17 +183,22 @@ const PlayerRelatedContent = () => {
                 <th className="px-4 py-2 text-left">{t("posted")}</th>
                 <th className="px-4 py-2 text-left">{t("source")}</th>
                 <th className="px-4 py-2 text-left">{t("save")}</th>
+                {userDetails.language !== "English" && (
+                  <th className="px-4 py-2 text-left">{t("translate")}</th> // New column for translate button
+                )}
               </tr>
             </thead>
             <tbody>
               {relatedContent.map((row: any, index: number) => (
                 <tr
                   key={index}
-                  className="hover:bg-blue-500 cursor-pointer transition duration-200"
+                  className="hover:bg-blue-600 cursor-pointer transition duration-200"
                 >
-                  <td className="px-4 py-2">{row.Headline}</td>
-                  <td className="px-4 py-2">{row.posted}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-white">
+                    {translatedHeadlines[index] || row.Headline}
+                  </td>
+                  <td className="px-4 py-2 text-white">{row.posted}</td>
+                  <td className="px-4 py-2 text-white">
                     <a
                       href={row.source}
                       target="_blank"
@@ -199,12 +219,23 @@ const PlayerRelatedContent = () => {
                       )}
                     </button>
                   </td>
+                  {userDetails.language !== "English" && (
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() => handleTranslate(index, row.Headline)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none transition duration-200"
+                      >
+                        {t("translate")}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
       {playerId && (
         <HomerunData
           playerName={playerName}
