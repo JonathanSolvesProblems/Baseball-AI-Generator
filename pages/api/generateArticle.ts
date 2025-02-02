@@ -50,7 +50,7 @@ export default async function handler(
         - Highlight key details such as name, age, position, and team.
         - Provide a brief background including birthplace, height, weight, and MLB debut.
         - Include interesting facts about their career and achievements.
-        - Include interesting statistic data of the player as well.
+        - Include interesting statistic data of the player as well if you find any, can keep it brief and doesn't have to be all of it.
         - Make it engaging and human-readable for a sports fan audience.
         - Ensure that the article is generated in the language ${language}
         - Can you ensure that the article completes with a proper sentence, as in prior tests, I notice that sometimes it would end with an incomplete sentence.
@@ -60,7 +60,7 @@ export default async function handler(
         - Highlight key details such as team name, location, season, and league.
         - Provide a brief background on the team's history, achievements, and major players.
         - Include any interesting facts like championships won or rivalries.
-        - Include interesting statistic data of the team as well.
+        - Include interesting statistic data of the team as well if you find any, can keep it brief and doesn't have to be all of it.
         - Make it engaging and human-readable for a sports fan audience.
         - Ensure that the article is generated in the language ${language}
         - Can you ensure that the article completes with a proper sentence, as in prior tests, I notice that sometimes it would end with an incomplete sentence.

@@ -37,6 +37,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
+import { generateImage } from "@/app/utils/imagen";
 
 const BaseballDashboard = () => {
   const { userId, userDetails, followedPlayers } = useUser();
@@ -299,6 +300,34 @@ const BaseballDashboard = () => {
                       >
                         {t("source")}
                       </a>
+
+                      <button
+                        onClick={async () => {
+                          try {
+                            const data = await generateImage(
+                              `Baseball: ${item.articleTitle}`,
+                              1
+                            );
+
+                            const imageUrl = data.images[0];
+
+                            const a = document.createElement("a");
+                            a.href = imageUrl;
+                            a.download = `${item.articleTitle}.png`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          } catch (error: any) {
+                            console.error(
+                              "Error generating image:",
+                              error.message
+                            );
+                          }
+                        }}
+                        className="bg-green-700 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ml-2"
+                      >
+                        {t("createImage")}
+                      </button>
                     </div>
                   ) : (
                     <>

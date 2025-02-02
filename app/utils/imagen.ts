@@ -1,20 +1,26 @@
-const generateImage = async (prompt: string, sampleCount: number) => {
-    const response = await fetch('/api/generateImage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt, sampleCount }),
-      });
+const generateImage = async (prompt: string, sampleCount: number, seed?: number, aspectRatio: string = '1:1') => {
+  const queryParams = new URLSearchParams({
+    prompt,
+    sampleCount: sampleCount.toString(),
+    seed: seed ? seed.toString() : '',
+    aspectRatio,
+  });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate image');
-      }
+  const response = await fetch(`/api/generateImage?${queryParams.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
-      const data = await response.json();
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to generate image');
+  }
 
-      return data;
-}
+  const data = await response.json();
+  return data;
+};
+
 
 export { generateImage }

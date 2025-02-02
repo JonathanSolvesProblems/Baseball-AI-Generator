@@ -17,8 +17,6 @@ const ImageGenerator = () => {
     try {
       const data = await generateImage(prompt, sampleCount);
 
-      // console.log(`Image data: ${JSON.stringify(data)}`);
-
       setGeneratedImages(data.predictions.map((item: any) => item.imageUri));
     } catch (err: any) {
       setError(err.message || "An error occurred");
