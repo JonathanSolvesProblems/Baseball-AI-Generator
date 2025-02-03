@@ -9,6 +9,7 @@ import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
 import { I18nextProvider } from "react-i18next";
+import { translateText } from "../utils/geminiCalls";
 
 const TeamsTable = ({ teams }: { teams: any[] }) => {
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
@@ -18,6 +19,9 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFollowedOnly, setIsFollowedOnly] = useState(false);
   const { t } = useTranslation();
+  const [translatedTeams, setTranslatedTeams] = useState<{
+    [key: string]: any;
+  }>({});
 
   useEffect(() => {
     if (userDetails?.language) {
@@ -69,9 +73,35 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
     setSelectedTeam(null);
   };
 
+  const handleTranslate = async (teamId: string) => {
+    const team = filteredTeams.find((t) => t.id === teamId);
+    if (team && userDetails.language !== "English") {
+      const translatedName = await translateText(
+        team.name,
+        userDetails.language
+      );
+      const translatedLocation = await translateText(
+        team.locationName,
+        userDetails.language
+      );
+      const translatedLeague = await translateText(
+        team.league?.name,
+        userDetails.language
+      );
+
+      setTranslatedTeams((prev) => ({
+        ...prev,
+        [teamId]: {
+          name: translatedName,
+          locationName: translatedLocation,
+          leagueName: translatedLeague,
+        },
+      }));
+    }
+  };
+
   return (
     <div className="p-4 space-y-4 max-w-screen-xl mx-auto">
-      {/* Search bar and Followed teams toggle */}
       <div className="flex items-center mb-4 space-x-4 flex-wrap">
         <input
           type="text"
@@ -81,7 +111,6 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
           className="input input-bordered w-full sm:max-w-xs bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* Tooltip and Toggle Followed Teams Only */}
         <div className="relative inline-flex items-center group">
           <button
             onClick={toggleFollowedFilter}
@@ -107,6 +136,9 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
               <th className="px-4 py-2 text-left">{t("location")}</th>
               <th className="px-4 py-2 text-left">{t("league")}</th>
               <th className="px-4 py-2 text-left">{t("status")}</th>
+              {userDetails && userDetails.language !== "English" && (
+                <th className="px-4 py-2 text-left">{t("translate")}</th>
+              )}
             </tr>
           </thead>
           <I18nextProvider i18n={i18n} defaultNS={"translation"}>
@@ -117,12 +149,32 @@ const TeamsTable = ({ teams }: { teams: any[] }) => {
                   onClick={() => showTeamDetails(team)}
                   className="hover:bg-blue-600 cursor-pointer transition duration-200"
                 >
-                  <td className="px-4 py-2 text-white">{team.name}</td>
-                  <td className="px-4 py-2 text-white">{team.locationName}</td>
-                  <td className="px-4 py-2 text-white">{team.league?.name}</td>
+                  <td className="px-4 py-2 text-white">
+                    {translatedTeams[team.id]?.name || team.name}
+                  </td>
+                  <td className="px-4 py-2 text-white">
+                    {translatedTeams[team.id]?.locationName ||
+                      team.locationName}
+                  </td>
+                  <td className="px-4 py-2 text-white">
+                    {translatedTeams[team.id]?.leagueName || team.league?.name}
+                  </td>
                   <td className="px-4 py-2 text-white">
                     {team.active ? t("active") : t("inactive")}
                   </td>
+                  {userDetails && userDetails.language !== "English" && (
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTranslate(team.id);
+                        }}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none transition duration-200"
+                      >
+                        {t("translate")}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

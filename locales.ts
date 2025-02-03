@@ -109,6 +109,8 @@ const translations = {
       unSupportedVideoTag: "Your browser does not support the video tag.",
       translating: "Translating...",
       translate: "Translate",
+      yes: "Yes",
+      no: "No",
     },
     es: {
       profile: "Perfil",
@@ -220,6 +222,8 @@ const translations = {
       unSupportedVideoTag: "Su navegador no soporta la etiqueta de vídeo.",
       translating: "Traducir...",
       translate: "Traducir",
+      yes: "Sí",
+      no: "No",
     },
     ja: {
       profile: "プロフィール",
@@ -331,6 +335,8 @@ const translations = {
       unSupportedVideoTag: "お使いのブラウザはビデオタグをサポートしていません。",
       translating: "翻訳...",
       translate: "翻訳する",
+      yes: "はい",
+      no: "いいえ",
     },
   };
 

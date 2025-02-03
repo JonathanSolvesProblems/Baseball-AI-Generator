@@ -5,6 +5,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import AuthModal from "../auth/AuthModal";
 import { analyzeVideoWithAudio } from "../utils/geminiCalls";
 import { useUser } from "../context/UserContext";
+import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
+import { locales } from "@/locales";
 
 interface VideoPlayerProps {
   videoSrc: string;
@@ -28,6 +31,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const { userId, userDetails } = useUser();
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [videoSummary, setVideoSummary] = useState<any>();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (userDetails?.language) {
+      i18n.changeLanguage(locales[userDetails.language]);
+    }
+  }, [userDetails?.language]);
 
   const getVideoSummary = async () => {
     // retrieve latest language set
@@ -128,7 +138,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             loop={loop}
           >
             <source src={videoSrc} type="video/mp4" />
-            Your browser does not support the video tag.
+            {t("unSupportedVideoTag")}
           </video>
         )}
 

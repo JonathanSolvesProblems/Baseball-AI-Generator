@@ -8,6 +8,7 @@ import { useUser } from "../context/UserContext";
 import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
+import { translateText } from "../utils/geminiCalls";
 
 interface TeamModalProps {
   team: any;
@@ -20,6 +21,7 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
   const router = useRouter();
   const { userId, userDetails } = useUser();
   const { t } = useTranslation();
+  const [translatedTeam, setTranslatedTeam] = useState<any>({});
 
   useEffect(() => {
     if (userDetails?.language) {
@@ -66,6 +68,34 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
     }
   };
 
+  const handleTranslate = async () => {
+    if (userDetails.language !== "English") {
+      const translatedTeamName = await translateText(
+        team.teamName,
+        userDetails.language
+      );
+      const translatedLocationName = await translateText(
+        team.locationName,
+        userDetails.language
+      );
+      const translatedLeagueName = await translateText(
+        team.league?.name,
+        userDetails.language
+      );
+      const translatedFirstYearOfPlay = await translateText(
+        team.firstYearOfPlay.toString(),
+        userDetails.language
+      ); // Convert to string
+
+      setTranslatedTeam({
+        teamName: translatedTeamName,
+        locationName: translatedLocationName,
+        leagueName: translatedLeagueName,
+        firstYearOfPlay: translatedFirstYearOfPlay,
+      });
+    }
+  };
+
   if (!team) return;
 
   return (
@@ -85,19 +115,25 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
               alt={`${team.teamName}'s logo`}
               className="w-40 h-40 object-contain rounded-full border-4 border-gray-300 shadow-lg bg-white"
             />
-            <h2 className="text-3xl font-semibold text-white">{team.name}</h2>
+            <h2 className="text-3xl font-semibold text-white">
+              {translatedTeam.teamName || team.teamName}
+            </h2>
             <div className="w-full space-y-3 text-left text-gray-300">
               <p>
-                <strong>{t("location")}:</strong> {team.locationName}
+                <strong>{t("location")}:</strong>{" "}
+                {translatedTeam.locationName || team.locationName}
               </p>
               <p>
-                <strong>{t("league")}:</strong> {team.league.name}
+                <strong>{t("league")}:</strong>{" "}
+                {translatedTeam.leagueName || team.league?.name}
               </p>
               <p>
-                <strong>{t("firstYearOfPlay")}:</strong> {team.firstYearOfPlay}
+                <strong>{t("firstYearOfPlay")}:</strong>{" "}
+                {translatedTeam.firstYearOfPlay || team.firstYearOfPlay}
               </p>
               <p>
-                <strong>{t("active")}:</strong> {team.active ? "Yes" : "No"}
+                <strong>{t("active")}:</strong>{" "}
+                {team.active ? t("yes") : t("no")}
               </p>
             </div>
 
@@ -114,6 +150,15 @@ const TeamModal = ({ team, onClose }: TeamModalProps) => {
                 className="w-full py-3 mt-4 bg-gray-700 text-white rounded-full hover:bg-gray-600 shadow-lg transform transition duration-300 ease-in-out"
               >
                 {t("searchRelatedContent")}
+              </button>
+            )}
+
+            {userDetails && userDetails.language !== "English" && (
+              <button
+                onClick={handleTranslate}
+                className="w-full py-3 mt-4 bg-green-600 text-white rounded-full hover:bg-green-700 shadow-lg transform transition duration-300 ease-in-out"
+              >
+                {t("translate")}
               </button>
             )}
           </div>

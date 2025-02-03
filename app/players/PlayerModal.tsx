@@ -10,6 +10,7 @@ import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
 import { useUser } from "../context/UserContext";
+import { translateText } from "../utils/geminiCalls";
 
 interface PlayerModalProps {
   player: PlayerDetails;
@@ -23,6 +24,7 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { userDetails } = useUser();
+  const [translatedPlayer, setTranslatedPlayer] = useState<any>({});
 
   useEffect(() => {
     if (userDetails?.language) {
@@ -73,6 +75,49 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
     }
   };
 
+  const handleTranslate = async () => {
+    if (userDetails.language !== "English") {
+      const translatedBirthCity = await translateText(
+        player.birthCity,
+        userDetails.language
+      );
+      const translatedBirthCountry = await translateText(
+        player.birthCountry,
+        userDetails.language
+      );
+      const translatedHeight = await translateText(
+        player.height.toString(),
+        userDetails.language
+      );
+      const translatedWeight = await translateText(
+        player.weight.toString(),
+        userDetails.language
+      );
+      const translatedPosition = await translateText(
+        player.primaryPosition,
+        userDetails.language
+      );
+      const translatedAge = await translateText(
+        player.currentAge.toString(),
+        userDetails.language
+      );
+      const translatedDebut = await translateText(
+        player.mlbDebutDate,
+        userDetails.language
+      );
+
+      setTranslatedPlayer({
+        birthCity: translatedBirthCity,
+        birthCountry: translatedBirthCountry,
+        height: translatedHeight,
+        weight: translatedWeight,
+        primaryPosition: translatedPosition,
+        age: translatedAge,
+        mlbDebutDate: translatedDebut,
+      });
+    }
+  };
+
   if (!player) return;
   return (
     <>
@@ -96,26 +141,32 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
             </h2>
             <div className="w-full space-y-3 text-left text-gray-300">
               <p>
-                <strong>{t("birthCity")}</strong> {player.birthCity}
+                <strong>{t("birthCity")}</strong>{" "}
+                {translatedPlayer.birthCity || player.birthCity}
               </p>
               <p>
-                <strong>{t("birthCountry")}:</strong> {player.birthCountry}
+                <strong>{t("birthCountry")}:</strong>{" "}
+                {translatedPlayer.birthCountry || player.birthCountry}
               </p>
               <p>
-                <strong>{t("height")}:</strong> {player.height}
+                <strong>{t("height")}:</strong>{" "}
+                {translatedPlayer.height || player.height}
               </p>
               <p>
-                <strong>{t("weight")}:</strong> {player.weight}
+                <strong>{t("weight")}:</strong>{" "}
+                {translatedPlayer.weight || player.weight}
               </p>
               <p>
                 <strong>{t("primaryPosition")}:</strong>{" "}
-                {player.primaryPosition}
+                {translatedPlayer.primaryPosition || player.primaryPosition}
               </p>
               <p>
-                <strong>{t("age")}:</strong> {player.currentAge}
+                <strong>{t("age")}:</strong>{" "}
+                {translatedPlayer.age || player.currentAge}
               </p>
               <p>
-                <strong>{t("mlbDebut")}:</strong> {player.mlbDebutDate}
+                <strong>{t("mlbDebut")}:</strong>{" "}
+                {translatedPlayer.mlbDebutDate || player.mlbDebutDate}
               </p>
             </div>
 
@@ -132,6 +183,15 @@ const PlayerModal = ({ player, onClose, userId }: PlayerModalProps) => {
                 className="w-full py-3 mt-4 bg-gray-700 text-white rounded-full hover:bg-gray-600 shadow-lg transform transition duration-300 ease-in-out"
               >
                 {t("searchRelatedContent")}
+              </button>
+            )}
+
+            {userDetails && userDetails.language !== "English" && (
+              <button
+                onClick={handleTranslate}
+                className="w-full py-3 mt-4 bg-green-600 text-white rounded-full hover:bg-green-700 shadow-lg transform transition duration-300 ease-in-out"
+              >
+                {t("translate")}
               </button>
             )}
           </div>

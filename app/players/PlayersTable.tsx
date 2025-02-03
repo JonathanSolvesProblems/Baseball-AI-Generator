@@ -8,6 +8,7 @@ import { useUser } from "../context/UserContext";
 import i18n from "@/i18n";
 import { useTranslation } from "react-i18next";
 import { locales } from "@/locales";
+import { translateText } from "../utils/geminiCalls";
 
 interface PlayersTableProps {
   players: any[];
@@ -21,6 +22,12 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isFollowedOnly, setIsFollowedOnly] = useState(false);
   const { t } = useTranslation();
+  const [translatedNames, setTranslatedNames] = useState<{
+    [key: string]: string;
+  }>({});
+  const [translatedCountries, setTranslatedCountries] = useState<{
+    [key: string]: string;
+  }>({});
 
   useEffect(() => {
     if (userDetails?.language) {
@@ -58,6 +65,27 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
     });
 
     setFilteredPlayers(filtered);
+  };
+
+  const handleTranslate = async (playerId: string) => {
+    const player = filteredPlayers.find((p) => p.id === playerId);
+    if (player && userDetails.language !== "English") {
+      // Translate both name and country
+      const translatedName = await translateText(
+        player.fullName,
+        userDetails.language
+      );
+      const translatedCountry = await translateText(
+        player.birthCountry,
+        userDetails.language
+      );
+
+      setTranslatedNames((prev) => ({ ...prev, [playerId]: translatedName }));
+      setTranslatedCountries((prev) => ({
+        ...prev,
+        [playerId]: translatedCountry,
+      }));
+    }
   };
 
   const fetchPlayerDetails = async (player: any) => {
@@ -126,6 +154,9 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
             <tr>
               <th className="px-4 py-2 text-left">{t("name")}</th>
               <th className="px-4 py-2 text-left">{t("birthCountry")}</th>
+              {userDetails && userDetails.language !== "English" && (
+                <th className="px-4 py-2 text-left">{t("translate")}</th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -135,8 +166,27 @@ const PlayersTable = ({ players }: PlayersTableProps) => {
                 onClick={() => fetchPlayerDetails(player)}
                 className="hover:bg-blue-600 cursor-pointer transition duration-200"
               >
-                <td className="px-4 py-2 text-white">{player.fullName}</td>
-                <td className="px-4 py-2 text-white">{player.birthCountry}</td>
+                <td className="px-4 py-2 text-white">
+                  {translatedNames[player.id] || player.fullName}
+                </td>
+                <td className="px-4 py-2 text-white">
+                  {translatedCountries[player.id] || player.birthCountry}
+                </td>
+                {userDetails && userDetails.language !== "English" && (
+                  <td className="px-4 py-2">
+                    {userDetails && userDetails.language !== "English" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal from opening
+                          handleTranslate(player.id); // Translate clicked row
+                        }}
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none transition duration-200"
+                      >
+                        {t("translate")}
+                      </button>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
