@@ -40,4 +40,5 @@ Submitted to Hackathon [Google Cloud x MLB(TM) Hackathon – Building with Gemin
 3. Firebase
 4. Nextjs /w Typescript, Tailwind, and DaisyUi
 5. Chartjs
-6. Material Icons
+6. VertexAI
+7. Material Icons
