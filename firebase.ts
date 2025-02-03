@@ -369,33 +369,40 @@ const getRandomFollowedPlayer = async (userId: string) => {
 }
 
 const deleteUserAccount = async (userId: string) => {
-    const auth = getAuth();
+  const auth = getAuth();
+  try {
+      await deleteUserDataFromFirestore(userId);
 
-    try {
-        await deleteUserDataFromFirestore(userId);
-
-        const user = auth.currentUser;
-        if (user) {
-            await deleteUser(user);
-      //      console.log("User account deleted successfully");
-
-            await auth.signOut();
-    //        console.log("User signed out after delete");
-        }
-    } catch (error) {
-        console.error(`Error deleting account: ${error}`);
-    }
-}
+      const user = auth.currentUser;
+      if (user) {
+          await user.reload(); 
+          await deleteUser(user);
+          await auth.signOut();
+      } else {
+          console.error("No authenticated user found.");
+      }
+  } catch (error) {
+      console.error(`Error deleting account: ${error}`);
+  }
+};
 
 const deleteUserDataFromFirestore = async (userId: string) => {
     try {
         const userDocRef = doc(db, "users", userId);
         await deleteDoc(userDocRef);
-        // console.log("User data deleted from firestore");
+
+        const userSubcollections = ["dashboardItems", "followedPlayers, followedTeams", "savedArticles", "savedCharts", "savedVideos"];
+        for (const sub of userSubcollections) {
+            const subColRef = collection(db, `users/${userId}/${sub}`);
+            const subDocs = await getDocs(subColRef);
+            subDocs.forEach(async (doc) => await deleteDoc(doc.ref));
+        }
+
     } catch (error) {
-        console.error("Error deleting user data from firestore: " + error);
+        console.error("Error deleting user data from Firestore: " + error);
     }
-}
+};
+
 
 const saveChart = async (userId: string, graphDetails: any) => {
     if (!graphDetails) {
