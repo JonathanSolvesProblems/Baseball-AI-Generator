@@ -82,7 +82,7 @@ export default async function handler(
       tables.forEach((table) => {
         datasetDescription += `Table "${projectId}.${datasetId}.${table.tableName}" with fields:\n`;
         table.schema.forEach((field: { name: string; type: string }) => {
-          datasetDescription += `  - ${field.name} (${field.type})\n`;
+          datasetDescription += `  - \`${field.name}\` (${field.type})\n`;
         });
         datasetDescription += "\n";
       });
