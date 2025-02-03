@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { VertexAI } from '@google-cloud/vertexai';
-import { Storage } from '@google-cloud/storage';
 import axios from 'axios';
 import stream from 'stream';
+import { Storage } from '@google-cloud/storage';
+import { getGeminiKey, getVertexProjectId } from '@/app/utils/geminiCalls';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { videoUrl, language, videoName } = req.query;
@@ -11,45 +11,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'videoUrl, language, and videoName are required' });
     }
 
+    if (!videoUrl || typeof(videoUrl) !== "string") {
+        return res.status(400).json({ error: 'videoUrl is required' });
+    }
+
     try {
         const bucketName = 'mlb_hackathon';
 
+        const apiKey = getGeminiKey();
 
-        const credentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-
-        if (!credentialsBase64) {
-          throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is missing.');
-        }
-    
-        let credentialsJson;
-        try {
-          const decodedCredentials = Buffer.from(credentialsBase64, 'base64').toString('utf-8');
-      
-          credentialsJson = JSON.parse(decodedCredentials);
-        } catch (error) {
-          console.error('Error decoding or parsing credentials:', error);
-          throw new Error('Failed to decode or parse credentials.');
+        if (!apiKey) {
+          throw new Error('API key is missing');
         }
 
-        const projectId = credentialsJson.project_id; 
+        const projectId = getVertexProjectId();
 
-        const storage = new Storage({ projectId, credentials: credentialsJson });
-        const vertexAI = new VertexAI({ project: projectId, location: 'us-central1', googleAuthOptions: credentialsJson.credentials });
+        const storage = new Storage({ projectId });
+        const bucket = storage.bucket(bucketName);
 
-        if (!(typeof(videoUrl) === 'string')) {
-            throw new Error('Ensure the videoUrl is a string');
-        }
-
-        // Fetch the video stream using axios
         const response = await axios.get(videoUrl, { responseType: 'stream' });
         if (!response.data) {
             throw new Error('Failed to download video');
         }
 
-        if (typeof(videoName) !== 'string') return;
+        if (typeof videoName !== 'string') return;
 
         const fileName = `${encodeURIComponent(videoName)}/${Date.now()}.mp4`;
-        const bucket = storage.bucket(bucketName);
         const file = bucket.file(fileName);
 
         // Create a PassThrough stream to pipe the video data
@@ -58,41 +45,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Upload the video to GCS via stream
         await new Promise((resolve, reject) => {
-            passthroughStream.pipe(file.createWriteStream())
-                .on('finish', resolve)
-                .on('error', reject);
+          passthroughStream.pipe(file.createWriteStream())
+            .on('finish', resolve)
+            .on('error', reject);
         });
 
         const gsUri = `gs://${bucketName}/${file.name}`;
 
-        // console.log(`Video uploaded to ${gsUri}`);
+        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta3/models/gemini-1.5-flash-001:generateContent';
 
-        const generativeModel = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
-
-        const filePart = {
-            file_data: {
-                file_uri: gsUri,
-                mime_type: 'video/mp4',
-            },
+        const requestPayload = {
+            contents: [{
+                role: 'user',
+                parts: [
+                    {
+                        file_data: {
+                            file_uri: gsUri,
+                            mime_type: 'video/mp4',
+                        }
+                    },
+                    {
+                        text: `Provide a brief summary in ${language} of what happens in the video and include anything important that is spoken in the video or noteworthy.`
+                    }
+                ]
+            }]
         };
 
-        // The prompt to describe the video
-        const textPart = {
-            text: `Provide a brief summary in ${language} of what happens in the video and include anything important that is spoken in the video or noteworthy.`,
-        };
+        const responseFromAI = await axios.post(apiUrl, requestPayload, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-        const request: any = {
-            contents: [{ role: 'user', parts: [filePart, textPart] }],
-        };
-
-        try {
-            const resp = await generativeModel.generateContent(request);
-            res.status(200).send(resp.response);
-        } catch (error) {
-            console.error('Error generating content:', error);
-            res.status(500).json({ error: 'Failed to process the video' });
-        }
-
+        res.status(200).json(responseFromAI.data); 
     } catch (error) {
         console.error('Error in handler:', error);
         res.status(500).json({ error: 'Internal server error' });
