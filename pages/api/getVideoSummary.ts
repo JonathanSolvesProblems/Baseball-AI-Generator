@@ -32,8 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const projectId = credentialsJson.project_id; 
-
-        const storage = new Storage({ projectId });
+        
+        const storage = new Storage({ projectId, credentials: credentialsJson });
         const vertexAI = new VertexAI({ project: projectId, location: 'us-central1' });
 
         if (!(typeof(videoUrl) === 'string')) {
