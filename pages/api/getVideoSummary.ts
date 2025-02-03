@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { VertexAI } from '@google-cloud/vertexai';
-import { getVertexProjectId } from '@/app/utils/geminiCalls';
 import { Storage } from '@google-cloud/storage';
 import axios from 'axios';
 import stream from 'stream';
@@ -13,8 +12,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-        const projectId = getVertexProjectId();
         const bucketName = 'mlb_hackathon';
+
+
+        const credentialsBase64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+        if (!credentialsBase64) {
+          throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is missing.');
+        }
+    
+        let credentialsJson;
+        try {
+          const decodedCredentials = Buffer.from(credentialsBase64, 'base64').toString('utf-8');
+      
+          credentialsJson = JSON.parse(decodedCredentials);
+        } catch (error) {
+          console.error('Error decoding or parsing credentials:', error);
+          throw new Error('Failed to decode or parse credentials.');
+        }
+
+        const projectId = credentialsJson.project_id; 
+
         const storage = new Storage({ projectId });
         const vertexAI = new VertexAI({ project: projectId, location: 'us-central1' });
 
