@@ -93,6 +93,7 @@ export default async function handler(
               2. Query Details: ${query}
               3. Also note that names in some table columns can be inversed, where the last name of a player can be displayed before the first name.
               4. It is important to consider the representation of data across different tables when/if needed to join them.
+              5. Also ensure to use LIKE at times if/when looking at table records, as sometimes the syntax can vary. For example, in the divisionTeamLeadingScores indicates the team scoring for different teams, per divisions, like NL West Division, and perhaps a user will not put the whole name of the division, so it's important to be mindful of that.
 
               Ensure that the SQL query is optimized for retrieving the requested data and includes all necessary filters or conditions to match the question. If you're unsure, consider adding appropriate JOINs or WHERE clauses to refine the results`;
     };
