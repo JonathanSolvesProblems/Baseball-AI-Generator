@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const projectId = credentialsJson.project_id; 
 
         const storage = new Storage({ projectId, credentials: credentialsJson });
-        const vertexAI = new VertexAI({ project: projectId, location: 'us-central1', googleAuthOptions: credentialsJson });
+        const vertexAI = new VertexAI({ project: projectId, location: 'us-central1', googleAuthOptions: credentialsJson.credentials });
 
         if (!(typeof(videoUrl) === 'string')) {
             throw new Error('Ensure the videoUrl is a string');
