@@ -6,10 +6,9 @@ const domain = 'https://baseball-ai-generator.vercel.app';
 admin.initializeApp();
 
 // Scheduled function that runs every 24 hours every 24 hours 
-// every day 04:00
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
-  schedule: "every day 06:34",
+  schedule: "every day 04:30",
   timeZone: "America/New_York" }, async (event: any) => {
   // Fetch all users from Firestore
   const usersSnapshot = await admin.firestore().collection('users').get();
