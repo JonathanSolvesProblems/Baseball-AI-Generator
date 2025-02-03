@@ -301,7 +301,7 @@ const BaseballDashboard = () => {
                         {t("source")}
                       </a>
 
-                      <button
+                      {/* <button
                         onClick={async () => {
                           try {
                             const data = await generateImage(
@@ -327,7 +327,7 @@ const BaseballDashboard = () => {
                         className="bg-green-700 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ml-2"
                       >
                         {t("createImage")}
-                      </button>
+                      </button> */}
                     </div>
                   ) : (
                     <>
