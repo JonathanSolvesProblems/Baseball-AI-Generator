@@ -60,7 +60,7 @@ export default async function handler(
       'homeruns', 'teams', 'players', 'divisionTeamLeadingScores', 
       'exitVelocityAndBarrelsLeaderboard', 'batTrackingLeaderboard', 
       'fan_content_interaction_data', 'fan_fav_data', 'historicalBaseballTeamStats', 
-      'pitchRunningGameLeaderboard'
+      'pitcherRunningGameLeaderboard', 'homeRunsLeaderboard', 
     ];
 
     const filteredTables = tables.filter((table) => 

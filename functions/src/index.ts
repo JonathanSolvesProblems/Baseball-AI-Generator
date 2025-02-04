@@ -216,9 +216,8 @@ const sendSQLQuerytoBigQuery = async (sqlQuery: string, retryCount: number = 3):
 
       data = await queryResponse.json();
 
-      // Check if the returned data is empty or not as expected
-      if (data && Object.keys(data).length > 0) {
-        return data; // Return the data if it's not empty
+      if (data && data.data && data.data.length > 0) {
+        return data; 
       } else {
         throw new Error('Empty data returned from BigQuery');
       }
@@ -227,16 +226,20 @@ const sendSQLQuerytoBigQuery = async (sqlQuery: string, retryCount: number = 3):
       attempts += 1;
       console.error(`Attempt ${attempts} failed: ${error.message}`);
 
+      if (attempts < retryCount) {
+        console.log("Retrying with modified query...");
+        sqlQuery = modifyQueryForRetry(sqlQuery);
+      }
+
       if (attempts >= retryCount) {
         return { message: `Failed to fetch data after ${retryCount} attempts: ${error.message}` };
       }
-
-      sqlQuery = modifyQueryForRetry(sqlQuery);
     }
   }
 
   return data;
 };
+
 
 const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
   try {
@@ -279,8 +282,8 @@ const generateArticleText = async (
   }
 
   const prompt = dataType === 'player'
-  ? `Generate a BigQuery SQL query to retrieve information for the player with id ${randomId}. Ensure the query targets the correct player-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`
-  : `Generate a BigQuery SQL query to retrieve information for the team with id ${randomId}. Ensure the query targets the correct team-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`;
+  ? `Generate a BigQuery SQL query to retrieve information for the player with player id ${randomId}. Ensure the query targets the correct player-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`
+  : `Generate a BigQuery SQL query to retrieve information for the team with team id ${randomId}. Ensure the query targets the correct team-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`;
 
   try {
     const result = await askSQLQuestion(prompt); // Returns plain text response
