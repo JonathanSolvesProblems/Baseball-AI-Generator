@@ -1,10 +1,10 @@
-TODO: [Video Demo](https://nextjs.org)
+Demonstration: [Video Demo](https://www.youtube.com/watch?v=MUEDx_GT7wE)
 
 Try it Out: [Personalized Baseball Generator](https://baseball-ai-generator.vercel.app/)
 
 - <strong>Note:</strong> This link may no longer be available after the winners are announced of the hackathon, due to cost constraints of the APIs.
 
-Submitted to Hackathon [Google Cloud x MLB(TM) Hackathon – Building with Gemini Models](https://next2025challenge.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open) - TODO Can put submission
+Submitted to Hackathon [Google Cloud x MLB(TM) Hackathon – Building with Gemini Models](https://next2025challenge.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open)
 
 ## List of Features
 
