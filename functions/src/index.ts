@@ -198,28 +198,45 @@ const askSQLQuestion = async(query: string) => {
   }
 }
 
-const sendSQLQuerytoBigQuery = async (sqlQuery: string) => {
-  try {
-        const queryResponse = await fetch(`${domain}/api/getSQLBigQueryResults`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sqlQuery: sqlQuery }),
-        });
+const sendSQLQuerytoBigQuery = async (sqlQuery: string, retryCount: number = 3): Promise<any> => {
+  let attempts = 0;
+  let data: any;
 
-        if (!queryResponse.ok) {
-          throw new Error("Failed to execute SQL query.");
-        }
+  while (attempts < retryCount) {
+    try {
+      const queryResponse = await fetch(`${domain}/api/getSQLBigQueryResults`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sqlQuery: sqlQuery }),
+      });
 
-        const data = await queryResponse.json();
+      if (!queryResponse.ok) {
+        throw new Error("Failed to execute SQL query.");
+      }
 
-        return data;
+      data = await queryResponse.json();
 
-  } catch (error) {
-      const message = `An error has occurred in sendSQLQuerytoBigQuery: ${error}`;
-      console.error(message);
-      return message;
+      // Check if the returned data is empty or not as expected
+      if (data && Object.keys(data).length > 0) {
+        return data; // Return the data if it's not empty
+      } else {
+        throw new Error('Empty data returned from BigQuery');
+      }
+
+    } catch (error: any) {
+      attempts += 1;
+      console.error(`Attempt ${attempts} failed: ${error.message}`);
+
+      if (attempts >= retryCount) {
+        return { message: `Failed to fetch data after ${retryCount} attempts: ${error.message}` };
+      }
+
+      sqlQuery = modifyQueryForRetry(sqlQuery);
+    }
   }
-}
+
+  return data;
+};
 
 const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
   try {
@@ -283,4 +300,28 @@ const generateArticleText = async (
     console.error("Error generating article text:", err);
     return null;
   }
+};
+
+const modifyQueryForRetry = (query: string): string => {
+  const dateRangeFilter = "AND created_at >= '2023-01-01' AND created_at <= '2023-12-31'";
+
+  const partitionFilter = "AND partition_id = 1"; 
+
+  const limitClause = "LIMIT 100";
+
+  const randomChoice = Math.random(); 
+
+  let modifiedQuery = query;
+
+  if (randomChoice < 0.5) {
+    modifiedQuery += ` ${dateRangeFilter}`; 
+  }
+
+  if (randomChoice < 0.8) {
+    modifiedQuery += ` ${partitionFilter}`; 
+  }
+
+  modifiedQuery += ` ${limitClause}`;
+
+  return modifiedQuery;
 };
