@@ -148,17 +148,21 @@ exports.sendDailyEmails = onSchedule({
           </a>
         `;
 
-
-        await admin.firestore().collection("mail").add({
-          to: [email],
-          message: {
-            subject: `Personalized Baseball Article: ${title}`,
-            text: `Hello ${user.firstName},\n\n${article}`,
-            html: emailHtml,
-          },
-        });
+        try {
+          await admin.firestore().collection("mail").add({
+            to: [email],
+            message: {
+              subject: `Personalized Baseball Article: ${title}`,
+              text: `Hello ${user.firstName},\n\n${article}`,
+              html: emailHtml,
+            },
+          });
+        } catch (error) {
+          logger.error(`Error sending email for user ${userDoc.id}:`, error);
+        }
 
         logger.log(`Queued email for user ${userDoc.id}`);
+
       } catch (error) {
         logger.error(`Error sending email for user ${userDoc.id}:`, error);
       }
@@ -169,9 +173,10 @@ exports.sendDailyEmails = onSchedule({
 const getRandomValueFromArray = (array: string[]) => {
   if (!array.length) return null;
 
-  const randomIndex = Math.floor(Math.random() * array.length);
+  const randomIndex = Math.floor(Math.random() * array.length + Date.now()) % array.length;
   return array[randomIndex];
 };
+
 
 const parseSQL = (text: string): string => {
   // Remove formatting, "SQL Query:", and ensure proper spacing
@@ -198,48 +203,27 @@ const askSQLQuestion = async(query: string) => {
   }
 }
 
-const sendSQLQuerytoBigQuery = async (sqlQuery: string, retryCount: number = 3): Promise<any> => {
-  let attempts = 0;
-  let data: any;
+const sendSQLQuerytoBigQuery = async (sqlQuery: string) => {
+  try {
+    const queryResponse = await fetch(`${domain}/api/getSQLBigQueryResults`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sqlQuery: sqlQuery }),
+    });
 
-  while (attempts < retryCount) {
-    try {
-      const queryResponse = await fetch(`${domain}/api/getSQLBigQueryResults`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sqlQuery: sqlQuery }),
-      });
-
-      if (!queryResponse.ok) {
-        throw new Error("Failed to execute SQL query.");
-      }
-
-      data = await queryResponse.json();
-
-      if (data && data.data && data.data.length > 0) {
-        return data; 
-      } else {
-        throw new Error('Empty data returned from BigQuery');
-      }
-
-    } catch (error: any) {
-      attempts += 1;
-      console.error(`Attempt ${attempts} failed: ${error.message}`);
-
-      if (attempts < retryCount) {
-        console.log("Retrying with modified query...");
-        sqlQuery = modifyQueryForRetry(sqlQuery);
-      }
-
-      if (attempts >= retryCount) {
-        return { message: `Failed to fetch data after ${retryCount} attempts: ${error.message}` };
-      }
+    if (!queryResponse.ok) {
+      throw new Error("Failed to execute SQL query.");
     }
+
+    const data = await queryResponse.json();
+
+    return data;
+  } catch (error) {
+    const message = `An error has occurred in sendSQLQuerytoBigQuery: ${error}`;
+    console.error(message);
+    return message;
   }
-
-  return data;
 };
-
 
 const generatePersonalizedArticle = async (rawData: any, language: string = 'English') => {
   try {
@@ -267,10 +251,11 @@ const generateArticleText = async (
   userId: string | null,
   followedIds: string[],
   dataType: 'player' | 'team',
-  language: string = 'English'
+  language: string = 'English',
+  retries: number = 5
 ): Promise<{ article: string; title: string } | null> => {
-  if (!userId || !followedIds.length) {
-    console.warn("User ID or followed players/teams are not available.");
+  if (retries <= 0) {
+    console.warn('Max retries reached, no data available.');
     return null;
   }
 
@@ -282,22 +267,28 @@ const generateArticleText = async (
   }
 
   const prompt = dataType === 'player'
-  ? `Generate a BigQuery SQL query to retrieve information for the player with player id ${randomId}. Ensure the query targets the correct player-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`
-  : `Generate a BigQuery SQL query to retrieve information for the team with team id ${randomId}. Ensure the query targets the correct team-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`;
+    ? `Generate a BigQuery SQL query to retrieve information for the player with player id ${randomId}. Ensure the query targets the correct player-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`
+    : `Generate a BigQuery SQL query to retrieve information for the team with team id ${randomId}. Ensure the query targets the correct team-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`;
 
   try {
-    const result = await askSQLQuestion(prompt); // Returns plain text response
-    const cleanedSQL = parseSQL(JSON.parse(result).res); // Extract the clean SQL query
-    // console.log(`SQL query generated: ${cleanedSQL}`);
+    // Generate the SQL query
+    const result = await askSQLQuestion(prompt);
+    const cleanedSQL = parseSQL(JSON.parse(result).res);
 
+    // Send the SQL query to BigQuery and get the response
     const data = await sendSQLQuerytoBigQuery(cleanedSQL);
-    // console.log(`Query results: ${JSON.stringify(data)}`);
 
+    // If no data is returned, retry with a new random ID and decremented retries count
+    if (!data || !data.data || data.data.length === 0) {
+      console.log('No data returned, retrying...');
+      return generateArticleText(userId, followedIds, dataType, language, retries - 1);
+    }
+
+    // Generate the article based on the data
     const articleText = await generatePersonalizedArticle(data.data, language);
-    // console.log("Generated article:", articleText);
-
     const articleTitle = articleText.split("\n")[0] || "Personalized Article";
 
+    // Return the article and its title
     return { article: articleText, title: articleTitle };
   } catch (err) {
     console.error("Error generating article text:", err);
@@ -305,26 +296,3 @@ const generateArticleText = async (
   }
 };
 
-const modifyQueryForRetry = (query: string): string => {
-  const dateRangeFilter = "AND created_at >= '2023-01-01' AND created_at <= '2023-12-31'";
-
-  const partitionFilter = "AND partition_id = 1"; 
-
-  const limitClause = "LIMIT 100";
-
-  const randomChoice = Math.random(); 
-
-  let modifiedQuery = query;
-
-  if (randomChoice < 0.5) {
-    modifiedQuery += ` ${dateRangeFilter}`; 
-  }
-
-  if (randomChoice < 0.8) {
-    modifiedQuery += ` ${partitionFilter}`; 
-  }
-
-  modifiedQuery += ` ${limitClause}`;
-
-  return modifiedQuery;
-};
