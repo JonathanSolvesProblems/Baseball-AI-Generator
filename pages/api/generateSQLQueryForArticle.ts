@@ -87,7 +87,7 @@ export default async function handler(
         datasetDescription += "\n";
       });
 
-      return `Generate a BigQuery SQL query and make sure to terminate the sql query with ';' for the following natural language question. ${datasetDescription}Note that the fields and tables are written exactly as given in the prompt:\n\n${query}`;
+      return `Generate a BigQuery SQL query and make sure to terminate the sql query with ';' for the following natural language question. ${datasetDescription} Note that the fields and tables are written exactly as given in the prompt:\n\n${query}`;
     };
 
     const prompt = generatePrompt(query, tableSchemas);

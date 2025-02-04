@@ -5,6 +5,15 @@ const domain = 'https://baseball-ai-generator.vercel.app';
 
 admin.initializeApp();
 
+type SupportedLanguage = "English" | "Spanish" | "Japanese";
+
+const saveArticleButtonText: Record<SupportedLanguage, string> = {
+  English: "Save Article",
+  Spanish: "Guardar Artículo",
+  Japanese: "記事を保存"
+};
+
+
 // Scheduled function that runs every 24 hours every 24 hours 
 // https://firebase.google.com/docs/functions/schedule-functions?gen=2nd
 exports.sendDailyEmails = onSchedule({
@@ -60,7 +69,7 @@ exports.sendDailyEmails = onSchedule({
           continue;
         }
 
-        const userLanguage = user.language || "English"; 
+        const userLanguage: string = user.language || "English"; 
 
         const followedPlayersSnapshot = await admin
           .firestore()
@@ -119,6 +128,8 @@ exports.sendDailyEmails = onSchedule({
 
         const { article, title } = articleData;
 
+        const saveButtonText = saveArticleButtonText[userLanguage as SupportedLanguage] || saveArticleButtonText.English;
+
         const emailHtml = `
           <h1>${title}</h1>
           <p>${article.replace(/\n/g, '<br>')}</p>
@@ -133,9 +144,10 @@ exports.sendDailyEmails = onSchedule({
               background-color: #007bff;
               text-decoration: none;
               border-radius: 5px;">
-            Save Article
+            ${saveButtonText}
           </a>
         `;
+
 
         await admin.firestore().collection("mail").add({
           to: [email],
@@ -250,8 +262,8 @@ const generateArticleText = async (
   }
 
   const prompt = dataType === 'player'
-  ? `Can you give me information related to player with id ${randomId}?`
-  : `Can you give me information related to team with id ${randomId}?`;
+  ? `Generate a BigQuery SQL query to retrieve information for the player with id ${randomId}. Ensure the query targets the correct player-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`
+  : `Generate a BigQuery SQL query to retrieve information for the team with id ${randomId}. Ensure the query targets the correct team-related fields and optimize for large datasets by adding relevant filters (e.g., date range, or a partition field) or limits (e.g., a limit of 100 rows). Terminate the query with a semicolon.`;
 
   try {
     const result = await askSQLQuestion(prompt); // Returns plain text response
