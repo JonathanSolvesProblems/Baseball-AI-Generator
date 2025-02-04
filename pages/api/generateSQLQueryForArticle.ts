@@ -87,24 +87,7 @@ export default async function handler(
         datasetDescription += "\n";
       });
 
-      return `Generate a BigQuery SQL query based on the following natural language question. The query should be structured correctly with the exact field names and table names as described below. Always terminate the query with a semicolon (;). 
-
-              Here are the details to consider:
-
-              1. **Dataset Description**: ${datasetDescription}
-              2. **Query Details**: ${query}
-              3. **Naming Considerations**: Pay attention to how player names might appear in the dataset. For example, last names might precede first names, and this should be reflected in the query if necessary.
-              4. **Table Relationships**: Be mindful of how data across different tables may need to be joined. Ensure to include the appropriate JOINs based on the context of the query.
-              5. **Syntax Flexibility**: If searching for partial matches in string fields, use \`LIKE\` to account for variations in data representation (e.g., divisions or team names may be abbreviated or incomplete).
-              6. **Optimization**: Ensure that the query is optimized for performance. Use filters (WHERE clauses) where necessary to focus the data and improve retrieval efficiency.
-
-              **Additional Considerations**:
-              - If the query involves aggregations or specific conditions (e.g., filtering by year, player performance, etc.), make sure to incorporate them.
-              - Take care to use proper SQL conventions, like quoting identifiers when required (e.g., backticks for table/column names with special characters).
-              - Ensure the query returns all relevant data fields needed to answer the original question, while minimizing extraneous data.
-
-              The goal is to generate an accurate and optimized SQL query for the given question. If unsure, default to using additional JOINs or WHERE clauses to refine the results.
-              `;
+      return `Generate a BigQuery SQL query and make sure to terminate the sql query with ';' for the following natural language question. ${datasetDescription}Note that the fields and tables are written exactly as given in the prompt:\n\n${query}`;
     };
 
     const prompt = generatePrompt(query, tableSchemas);

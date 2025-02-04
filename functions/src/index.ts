@@ -175,7 +175,7 @@ const parseSQL = (text: string): string => {
 
 const askSQLQuestion = async(query: string) => {
   try {
-      const res = await fetch(`${domain}/api/generateSQLQuery?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`${domain}/api/generateSQLQueryForArticle?query=${encodeURIComponent(query)}`);
       const sqlQuery = await res.text();
 
       return sqlQuery;
