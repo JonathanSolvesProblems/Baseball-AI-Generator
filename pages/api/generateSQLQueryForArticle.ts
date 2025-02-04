@@ -56,12 +56,24 @@ export default async function handler(
     // Fetch table metadata
     const [tables] = await dataset.getTables();
 
+    const includedTables = [
+      'homeruns', 'teams', 'players', 'divisionTeamLeadingScores', 
+      'exitVelocityAndBarrelsLeaderboard', 'batTrackingLeaderboard', 
+      'fan_content_interaction_data', 'fan_fav_data', 'historicalBaseballTeamStats', 
+      'pitchRunningGameLeaderboard'
+    ];
+
+    const filteredTables = tables.filter((table) => 
+      typeof table.id === 'string' && includedTables.includes(table.id)
+    );
+    
+
     const tableSchemas: any = await Promise.all(
-      tables.map(async (table) => {
+      filteredTables.map(async (table) => {
         const [metadata] = await table.getMetadata();
         return {
           tableName: table.id,
-          schema: metadata.schema.fields, // Schema fields for the table
+          schema: metadata.schema.fields,
         };
       })
     );
